@@ -1,0 +1,41 @@
+{
+	"$schema": "http://json-schema.org/draft-01/schema",
+	"type": "object",
+	"properties": {
+		"Need": {
+			"$ref": "#/definitions/Need"
+		}
+	},
+	"required": ["Need"],
+	"title": "Need",
+	"definitions": {
+		"Need": {
+			"$id": "#/properties/Need",
+			"type": "object",
+			"title": "Need schema",
+			"required": ["name", "needTypeId", "status"],
+			"properties": {
+				"name": { "type": "string" },
+				"needTypeId": { "type": "string" },
+				"status": { "type": "string" },
+                                                           "description": { "type": "string" }
+			}
+		}
+	},
+	"_osConfig": {
+		"ownershipAttributes": [
+			{
+				"email": "/email",
+				"mobile": "/phoneNumber",
+				"needId": "/phoneNumber"
+			}
+		],
+		"systemFields": [
+     			 "osCreatedAt",
+      			"osUpdatedAt",
+      			"osCreatedBy",
+     			 "osUpdatedBy"
+    		],
+		"inviteRoles": ["nCoordinator"]
+	}
+}

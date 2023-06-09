@@ -1,0 +1,61 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"properties": {
+		"NeedType": {
+			"$ref": "#/definitions/NeedType"
+		}
+	},
+	"required": ["NeedType"],
+	"title": "NeedType",
+	"definitions": {
+		"NeedType": {
+			"$id": "#/properties/NeedType",
+			"type": "object",
+			"title": "Need Type schema",
+			"required": ["name"],
+			"properties": {
+				"name": { "type": "string" },
+				"description": { "type": "string" },
+				"status": { 
+                                                                     "type": "string" ,
+                                                                      "enum": ["New",
+                                                                                     "Approved",
+                                                                                     "Rejected"]},
+                                                           "taskType": {
+            					"$ref": "#/definitions/TaskType"
+          					},
+				"taxonomyId": { "type": "string" },
+				"onboardingStepsId": { "type": "string" }
+			}
+		}, 
+	           "TaskType": {
+        		"title": "Details of the Recipient",
+        		"type": "object",
+        		"required": ["taskDetail"],
+        		"properties": {
+          			"id": {"type": "string"},
+                                            "taskDetail": { 
+                                                                 "type": "string" ,
+                                                                  "enum": ["Session",
+                                                                                 "Event",
+                                                                                 "Task"]}
+        			}
+     		 }
+	},
+	"_osConfig": {
+		"ownershipAttributes": [
+			{
+				"email": "/email",
+				"mobile": "/phoneNumber"
+			}
+		],
+		"systemFields": [
+     			 "osCreatedAt",
+      			"osUpdatedAt",
+      			"osCreatedBy",
+     			 "osUpdatedBy"
+    		],
+		"inviteRoles": ["anonymous"]
+	}
+}

@@ -1,0 +1,71 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"properties": {
+		"Entity": {
+			"$ref": "#/definitions/Entity"
+		}
+	},
+	"required": ["Entity"],
+	"title": "Entity",
+	"definitions": {
+		"Entity": {
+			"$id": "#/properties/Entity",
+			"type": "object",
+			"title": "Entity schema",
+			"required": ["name","address","contactNumber","email"],
+			"properties": {
+				"name": { "type": "string" },
+				"address": {
+          					"$ref": "Common.json/#/definitions/Address",
+         					 "title": "Address"
+       				   },
+				"contactNumber": {
+          					"$id": "#/properties/contactNumber",
+         					 "type": "string",
+          					"pattern": "^[6-9]\\d{9}$",
+          					"title": "Landline / Mobile"
+        					},
+        				"email": {
+          					"$id": "#/properties/email",
+          					"type": "string",
+          					"format": "email",
+          					"title": "Email"
+        					},
+       				 "website": {
+         					 "$id": "#/properties/website",
+         			 		 "type": "string",
+         					 "format": "uri",
+         		 			 "title": "Website"
+        					},
+                                                           "category": {
+          					"$id": "#/properties/category",
+          					"type": "string"
+        					},
+			}
+		}
+	},
+	"_osConfig": {
+		"ownershipAttributes": [
+			{
+				"email": "/email",
+				"mobile": "/phoneNumber"
+			}
+		],
+		"privateFields": [
+      			"$.contactNumber",
+      			"$.email"
+    		],
+    		"indexFields": [],
+    		"uniqueIndexFields": [
+      			"name"
+   		 ],
+		"systemFields": [
+     			 "osCreatedAt",
+      			"osUpdatedAt",
+      			"osCreatedBy",
+     			 "osUpdatedBy"
+    		],
+		"inviteRoles": ["anonymous"]
+	}
+}
