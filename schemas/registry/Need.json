@@ -17,10 +17,35 @@
 			"properties": {
 				"name": { "type": "string" },
 				"needTypeId": { "type": "string" },
-				"status": { "type": "string" },
-                                                           "description": { "type": "string" }
+				"status": { 
+                                           "type": "string" ,
+                                           "enum": ["New",
+                                                    "Approved",
+                                                    "Rejected",
+						    "Nominated",
+						    "In Progress",
+						    "Closed",
+						    "Inactive"]},
+                                "description": { "type": "string" },
+				"entityId": {"type": "string" },
+				"requirementId":{"type":"string" },
+				"taxonomyDetails": {"$ref": "#/definitions/TaxonomyDetails"}
 			}
-		}
+		},
+		 "TaxonomyDetails": {
+        		"title": "Details of the Taxonomy",
+        		"type": "object",
+        		"required": ["taxonomy"],
+        		"properties": {
+          			"id": {"type": "string"},
+                                 "taxonomy": { 
+                                          "type": "object",
+                                          "additionalProperties": {
+                                                 "type": "string"
+                                            }
+				   }
+        			}
+     		 }
 	},
 	"_osConfig": {
 		"ownershipAttributes": [
