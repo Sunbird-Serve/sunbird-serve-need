@@ -30,7 +30,7 @@
 			}
 		}, 
 	           "TaskType": {
-        		"title": "Details of the Recipient",
+        		"title": "Types of Tasks",
         		"type": "object",
         		"required": ["taskDetail"],
         		"properties": {
