@@ -1,0 +1,42 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"properties": {
+		"NeedDeliverable": {
+			"$ref": "#/definitions/NeedDeliverable"
+		}
+	},
+	"required": ["NeedDeliverable"],
+	"title": "NeedDeliverable",
+	"definitions": {
+		"NeedDeliverable": {
+			"$id": "#/properties/NeedDeliverable",
+			"type": "object",
+			"title": "Need Deliverable schema",
+			"required": ["needPlanId", "fulfillmentDetailsId"],
+			"properties": {
+				"needPlanId": { "type": "string" },
+				"taskType": { "type": "string" },
+                                                           "sessionNumber": { "type": "int" },
+                                                           "fulfillmentDetailsId": { "type": "string" },
+				"status": { 
+                                                                     "type": "string" ,
+                                                                      "enum": ["Not Started",
+                                                                                     "Scheduled",
+                                                                                     "In Progress",
+                                                                                     "Completed",
+                                                                                     "Cancelled"]},
+				"comments": { "type": "string" }
+			}
+		}
+	},
+	"_osConfig": {
+		"systemFields": [
+     			 "osCreatedAt",
+      			"osUpdatedAt",
+      			"osCreatedBy",
+     			 "osUpdatedBy"
+    		]
+		
+	}
+}
