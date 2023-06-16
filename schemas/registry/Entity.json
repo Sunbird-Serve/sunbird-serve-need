@@ -36,6 +36,15 @@
         "category": {
           "$id": "#/properties/category",
           "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "New",
+            "Verified",
+            "Active",
+            "Inactive"
+          ]
         }
       }
     },
