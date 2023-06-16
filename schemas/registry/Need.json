@@ -13,7 +13,7 @@
 			"$id": "#/properties/Need",
 			"type": "object",
 			"title": "Need schema",
-			"required": ["name", "needTypeId", "status"],
+			"required": ["name", "needTypeId", "userId"],
 			"properties": {
 				"name": { "type": "string" },
 				"needTypeId": { "type": "string" },
@@ -27,6 +27,7 @@
 						    "Closed",
 						    "Inactive"]},
                                 "description": { "type": "string" },
+				"userId":  {"type": "string" },
 				"entityId": {"type": "string" },
 				"requirementId":{"type":"string" },
 				"taxonomyDetails": {"$ref": "#/definitions/TaxonomyDetails"}
