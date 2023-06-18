@@ -6,49 +6,99 @@
       "$ref": "#/definitions/NeedPlan"
     }
   },
-  "required": ["NeedPlan"],
+  "required": [
+    "NeedPlan"
+  ],
   "title": "Need Plan",
   "definitions": {
     "NeedPlan": {
       "$id": "#/properties/NeedPlan",
       "type": "object",
       "title": "Need Plan schema",
-      "required": ["name", "needId", "assignedUserId", "status", "occurrenceDetails"],
+      "required": [
+        "name",
+        "needId",
+        "assignedUserId",
+        "status",
+        "occurrenceDetails"
+      ],
       "properties": {
-        "name": { "type": "string" },
-        "needId": { "type": "string" },
-        "assignedUserId": { "type": "string" },
+        "name": {
+          "type": "string"
+        },
+        "needId": {
+          "type": "string"
+        },
+        "assignedUserId": {
+          "type": "string"
+        },
         "status": {
           "type": "string",
-          "enum": ["New", "Proposed", "Approved","Withdraw"]
+          "enum": [
+            "New",
+            "Proposed",
+            "Approved",
+            "Withdraw"
+          ]
         },
         "occurrenceDetails": {
           "type": "object",
           "properties": {
-            "frequency": { "type": "string" },
-            "startDate": { "type": "string", "format": "date" },
-            "endDate": { "type": "string", "format": "date" },
-            "timeSlot": { "type": "string" },
-            "days": { "type": "array", "items": { "type": "string" } }
+            "frequency": {
+              "type": "string"
+            },
+            "startDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "endDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "timeSlot": {
+              "type": "string"
+            },
+            "days": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "frequency",
+              "startDate",
+              "endDate",
+              "timeSlot",
+              "days"
+            ]
           },
-          "required": ["frequency", "startDate", "endDate", "timeSlot", "days"]
-         }
           "proposedDetails": {
-          "type": "object",
-          "properties": {
-            "timeSlot": { "type": "string" },
-            "days": { "type": "array", "items": { "type": "string" } }
-            "comments": { "type": "string" }
+            "type": "object",
+            "properties": {
+              "timeSlot": {
+                "type": "string"
+              },
+              "days": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "comments": {
+                "type": "string"
+              }
+            }
           }
+        }
+      },
+      "_osConfig": {
+        "systemFields": [
+          "osCreatedAt",
+          "osUpdatedAt",
+          "osCreatedBy",
+          "osUpdatedBy"
+        ]
       }
     }
-  },
-  "_osConfig": {
-    "systemFields": [
-      "osCreatedAt",
-      "osUpdatedAt",
-      "osCreatedBy",
-      "osUpdatedBy"
-    ]
   }
 }
