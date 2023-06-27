@@ -17,16 +17,26 @@
 			"properties": {
 				"needPlanId": { "type": "string" },
 				"taskType": { "type": "string" },
-                                                           "sessionNumber": { "type": "int" },
-                                                           "fulfillmentDetailsId": { "type": "string" },
+                                "sessionNumber": { "type": "int" },
+                                "fulfillmentDetailsId": { "type": "string" },
 				"status": { 
-                                                                     "type": "string" ,
-                                                                      "enum": ["Not Started",
-                                                                                     "Scheduled",
-                                                                                     "In Progress",
-                                                                                     "Completed",
-                                                                                     "Cancelled"]},
-				"comments": { "type": "string" }
+                                        "type": "string" ,
+                                        "enum": ["Not Started",
+                                                "Scheduled",
+                                                "In Progress",
+                                                "Completed",
+                                                "Cancelled"]},
+				"comments": { "type": "string" },
+                                "beneficiaryDetails": { "$ref": "#/definitions/BeneficiaryDetails" }
+			}
+		},
+                "BeneficiaryDetails": {
+			"$id": "#/definitions/BeneficiaryDetails",
+			"type": "object",
+			"title": "Beneficiary Details",
+			"required": ["numberOfStudents"],
+			"properties": {
+				"numberOfStudents": { "type": "integer" }
 			}
 		}
 	},
