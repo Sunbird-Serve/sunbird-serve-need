@@ -16,7 +16,7 @@
 			"required": ["needPlanId", "fulfillmentDetailsId"],
 			"properties": {
 				"needPlanId": { "type": "string" },
-				"taskType": { "type": "string" },
+				"deliverableType": { "type": "string" },
                                                            "sessionNumber": { "type": "int" },
                                                            "fulfillmentDetailsId": { "type": "string" },
 				"status": { 
