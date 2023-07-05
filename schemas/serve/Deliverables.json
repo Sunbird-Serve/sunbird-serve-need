@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "properties": {
+    "Deliverables": {
+      "$ref": "#/definitions/Deliverables"
+    }
+  },
+  "required": ["Deliverables"],
+  "title": "Deliverables",
+  "definitions": {
+    "Deliverables": {
+      "$id": "#/properties/Deliverables",
+      "type": "object",
+      "title": "Deliverables schema",
+      "required": ["needDeliverableId", "status", "deliverableType"],
+      "properties": {
+        "needDeliverableId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Not Started", "Scheduled", "In Progress", "Completed", "Cancelled"]
+        },
+        "deliverableType": {
+          "type": "string"
+        },
+        "comments": {
+          "type": "string"
+        },
+        "deliverableDetails": {
+          "$ref": "#/definitions/DeliverableDetails"
+        }
+      }
+    },
+    "DeliverableDetails": {
+      "$id": "#/definitions/DeliverableDetails",
+      "type": "object",
+      "title": "Deliverable Details",
+      "required": ["inputParameters", "output"],
+      "properties": {
+        "inputParameters": {
+          "$id": "#/definitions/DeliverableDetails/properties/inputParameters",
+          "type": "object",
+          "title": "Input Parameters",
+          "properties": {
+            "deliveryDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "startTime": {
+              "type": "string",
+              "format": "time"
+            },
+            "endTime": {
+              "type": "string",
+              "format": "time"
+            },
+            "dueDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "priority": {
+              "type": "string",
+              "enum": ["Low", "Medium", "High"]
+            },
+            "detailsUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": ["deliverableDate", "startTime", "endTime"]
+        },
+        "output": {
+          "$id": "#/definitions/DeliverableDetails/properties/output",
+          "type": "object",
+          "title": "Output",
+          "properties": {
+            "numberOfAttendees": {
+              "type": "integer"
+            },
+            "submittedDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "submittedUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "remarks": {
+              "type": "string"
+            }
+          }
+        },
+        "outcome": {
+          "$id": "#/definitions/DeliverableDetails/properties/outcome",
+          "type": "object",
+          "title": "Outcome",
+          "properties": {
+            "scholastic": {
+              "type": "object"
+            },
+            "coscholastic": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "_osConfig": {
+    "systemFields": [
+      "osCreatedAt",
+      "osUpdatedAt",
+      "osCreatedBy",
+      "osUpdatedBy"
+    ]
+  }
+}
