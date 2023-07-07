@@ -27,6 +27,7 @@
             					"$ref": "#/definitions/TaskType"
           					},
 				"taxonomyId": { "type": "string" },
+				"requirementId":{"type":"string" },
 				"onboardingStepsId": { "type": "string" }
 			}
 		}, 
