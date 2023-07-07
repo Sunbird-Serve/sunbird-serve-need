@@ -47,12 +47,10 @@
         },
         "priority": {
           "type": "string"
-        },
-        "projectDetails": {
-          "type": "string"
         }
       },
-      "additionalProperties": false
+      "required": ["occurence", "duration"],
+      "additionalProperties": true
     }
   },
   "required": ["SkillDetail", "PrerequisiteDetail"],
