@@ -36,20 +36,34 @@
     "PrerequisiteDetail": {
       "type": "object",
       "properties": {
-        "occurence": {
+        "frequency": {
           "type": "string"
         },
         "volunteersRequired": {
           "type": "string"
         },
-        "duration": {
-          "type": "string"
-        },
+        "startDate": {
+              "type": "string",
+              "format": "date"
+            },
+        "endDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "timeSlot": {
+              "type": "string"
+            },
+            "days": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
         "priority": {
           "type": "string"
         }
       },
-      "required": ["occurence", "duration"],
+      "required": ["frequency", "volunteersRequired","startDate","endDate"],
       "additionalProperties": true
     }
   },
