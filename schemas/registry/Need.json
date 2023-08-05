@@ -63,6 +63,6 @@
       			"osCreatedBy",
      			 "osUpdatedBy"
     		],
-		"inviteRoles": ["nCoordinator"]
+		"inviteRoles": ["anonymous"]
 	}
 }
