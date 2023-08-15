@@ -25,6 +25,7 @@
         "deliverableType": {
           "type": "string"
         },
+        "fulfillmentDetailsId": { "type": "string" },
         "comments": {
           "type": "string"
         },
