@@ -18,7 +18,6 @@
 				"needPlanId": { "type": "string" },
 				"deliverableType": { "type": "string" },
                                                            "sessionNumber": { "type": "int" },
-                                                           "fulfillmentDetailsId": { "type": "string" },
 				"status": { 
                                                                      "type": "string" ,
                                                                       "enum": ["Not Started",
