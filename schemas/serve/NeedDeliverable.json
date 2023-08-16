@@ -13,7 +13,7 @@
 			"$id": "#/properties/NeedDeliverable",
 			"type": "object",
 			"title": "Need Deliverable schema",
-			"required": ["needPlanId", "fulfillmentDetailsId"],
+			"required": ["needPlanId"],
 			"properties": {
 				"needPlanId": { "type": "string" },
 				"deliverableType": { "type": "string" },
