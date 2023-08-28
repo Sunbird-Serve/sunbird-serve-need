@@ -53,7 +53,10 @@
         "timeSlotsAndDays": {
           "type": "object",
           "properties": {
-            "timeSlot": {
+            "startTime": {
+              "type": "string"
+            },
+            "endTime": {
               "type": "string"
             },
             "days": {
