@@ -27,6 +27,7 @@
 						    "Closed",
 						    "Inactive"]},
                                 "description": { "type": "string" },
+				"needPurpose": { "type": "string" },
 				"userId":  {"type": "string" },
 				"entityId": {"type": "string" },
 				"requirementId":{"type":"string" },
@@ -62,6 +63,6 @@
       			"osCreatedBy",
      			 "osUpdatedBy"
     		],
-		"inviteRoles": ["nCoordinator"]
+		"inviteRoles": ["anonymous"]
 	}
 }
