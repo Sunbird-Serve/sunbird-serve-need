@@ -16,6 +16,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.v3.oas.annotations.Parameter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.MediaType;
 
 
 import org.slf4j.Logger;
@@ -35,7 +41,13 @@ public class NeedTypeDiscoveryController {
         this.needTypeDiscoveryService = needTypeDiscoveryService;
     }
 
-    //Fetch all needs based on needId
+    //Fetch all need types based on needTypeId
+    @Operation(summary = "Fetch a NeedType by providing NeedTypeId", description = "Fetch a NeedType by providing NeedTypeId")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Need Type", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
     @GetMapping("/serve-need/needType/{needTypeId}")
     public ResponseEntity<NeedType> getNeedTypeById(@PathVariable String needTypeId) {
         Optional<NeedType> needType = needTypeDiscoveryService.getNeedTypeById(UUID.fromString(needTypeId));
@@ -43,6 +55,13 @@ public class NeedTypeDiscoveryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    //Fetch need types based on its status
+    @Operation(summary = "Fetch Need Types based on its status", description = "Fetch Need Types based on its status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Need Types", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
     @GetMapping("/serve-need/needType/status/{status}")
     public ResponseEntity<Page<NeedType>> getNeedTypeByStatus(
             @PathVariable NeedTypeStatus status,
@@ -53,6 +72,13 @@ public class NeedTypeDiscoveryController {
         return ResponseEntity.ok(needTypeByStatus);
     }
 
+    //Fetch all need types based on nCoordinator user Id or all the need types
+    @Operation(summary = "Fetch Need Types based on nCoordinator user Id or all the need types", description = "Fetch Need Types based on nCoordinator user Id or all the need types")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Need Types", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
     @GetMapping("/serve-need/needType/read")
 public ResponseEntity<Page<NeedType>> getAllNeedType(
         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
