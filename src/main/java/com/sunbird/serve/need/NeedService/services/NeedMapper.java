@@ -1,10 +1,12 @@
 package com.sunbird.serve.need;
 
 import com.sunbird.serve.need.models.request.NeedRequest;
+import com.sunbird.serve.need.models.request.NeedTypeRequest;
 import com.sunbird.serve.need.models.request.NeedRequirementRequest;
 import com.sunbird.serve.need.models.request.OccurrenceRequest;
 import com.sunbird.serve.need.models.request.TimeSlotRequest;
 import com.sunbird.serve.need.models.Need.Need;
+import com.sunbird.serve.need.models.Need.NeedType;
 import com.sunbird.serve.need.models.Need.NeedRequirement;
 import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.Need.TimeSlot;
@@ -67,6 +69,20 @@ public class NeedMapper {
                     return timeSlot;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public static NeedType mapToNeedType(NeedTypeRequest needTypeRequest) {
+        // Need request is mapped to the need entity
+        NeedType needType = new NeedType();
+        needType.setName(needTypeRequest.getName());
+        needType.setTaxonomyId(needTypeRequest.getTaxonomyId());
+        needType.setDescription(needTypeRequest.getDescription());
+        needType.setStatus(needTypeRequest.getStatus());
+        needType.setUserId(needTypeRequest.getUserId());
+        needType.setOnboardingId(needTypeRequest.getOnboardingId());
+        needType.setTaskType(needTypeRequest.getTaskType());
+
+        return needType;
     }
 
 }
