@@ -37,7 +37,7 @@ public class NeedController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PostMapping("/serve-need/need/create")
+    @PostMapping("/serve-need/need/raise")
     public ResponseEntity<Need> raiseNeed(@RequestBody RaiseNeedRequest request, @RequestHeader Map<String, String> headers) {
         Need response = raiseNeedService.raiseNeed(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

@@ -29,7 +29,7 @@ public class NeedMapper {
         need.setStatus(needRequest.getStatus());
         need.setUserId(needRequest.getUserId());
         need.setEntityId(needRequest.getEntityId());
-        need.setRequirementId(null);
+        need.setRequirementId(needRequest.getRequirementId());
 
         return need;
     }

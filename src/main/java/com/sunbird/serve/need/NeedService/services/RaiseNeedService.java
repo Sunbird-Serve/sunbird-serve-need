@@ -74,14 +74,34 @@ public class RaiseNeedService {
         Need existingNeed = needRepository.findById(needId)
         .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + needId));
 
+          // Update the existing need with new values
+        if (request.getNeedTypeId() != null) {
+            existingNeed.setNeedTypeId(request.getNeedTypeId());
+        }
+         // Update the existing need with new values
+        if (request.getEntityId() != null) {
+            existingNeed.setEntityId(request.getEntityId());
+        }
         // Update the existing need with new values
-        existingNeed.setNeedPurpose(request.getNeedPurpose());
-        existingNeed.setNeedTypeId(request.getNeedTypeId());
-        existingNeed.setEntityId(request.getEntityId());
-        existingNeed.setDescription(request.getDescription());
-        existingNeed.setUserId(request.getUserId());
-        existingNeed.setStatus(request.getStatus());
-        existingNeed.setName(request.getName());
+        if (request.getUserId() != null) {
+            existingNeed.setUserId(request.getUserId());
+        }
+        // Update the existing need with new values
+        if (request.getStatus() != null) {
+            existingNeed.setStatus(request.getStatus());
+        }
+
+        if (request.getNeedPurpose() != null) {
+            existingNeed.setNeedPurpose(request.getNeedPurpose());
+        }
+
+        if (request.getDescription() != null) {
+            existingNeed.setDescription(request.getDescription());
+        }
+    
+        if (request.getName() != null) {
+            existingNeed.setName(request.getName());
+        }
 
         // Save the updated need
         return needRepository.save(existingNeed);

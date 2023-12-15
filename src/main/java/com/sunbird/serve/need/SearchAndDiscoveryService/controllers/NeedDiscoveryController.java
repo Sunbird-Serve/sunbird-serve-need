@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class NeedDiscoveryController {
 
     private static final Logger logger = LoggerFactory.getLogger(NeedDiscoveryController.class);
@@ -60,50 +63,64 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need/status/{status}")
-    public ResponseEntity<Page<Need>> getNeedsByStatus(
-            @PathVariable NeedStatus status,
+    @GetMapping("/serve-need/need/")
+    public ResponseEntity<Page<NeedEntityAndRequirement>> getNeedsByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
-            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size){
+            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
+            @RequestParam NeedStatus status){
         Pageable pageable = PageRequest.of(page, size);
-        Page<Need> needsByStatus = needDiscoveryService.getNeedsByStatus(status, pageable);
+        Page<NeedEntityAndRequirement> needsByStatus = needDiscoveryService.getNeedsByStatus(status, pageable);
         return ResponseEntity.ok(needsByStatus);
     }
 
-    //Fetch all need by providing User Id of nCoord or Need Type Id
-    @Operation(summary = "Fetch all Needs by providing UserId of nCoordinator or Need Type or all the needs. ", description = "Fetch a Need by providing NeedId")
+    //Fetch all need by providing Need Type Id
+    @Operation(summary = "Fetch all Needs by providing Need Type ", description = "Fetch a Need by providing NeedTypeId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully Fetched Need", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need/read")
+    @GetMapping("/serve-need/need/need-type/{needTypeId}")
 public ResponseEntity<Page<Need>> getAllNeeds(
-        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
-        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size,
-        @RequestParam(required = false) @Parameter(description = "User ID") String userId,
-        @RequestParam(required = false) @Parameter(description = "Need Type ID") String needTypeId) {
+        @PathVariable(required = true) @Parameter(description = "Need Type ID") String needTypeId,
+            @RequestParam(required = false, defaultValue = "0")  Integer page,
+            @RequestParam(required = false, defaultValue = "10")  Integer size,
+            @RequestParam(required = true)  NeedStatus status) {
 
     Pageable pageable = PageRequest.of(page, size);
     Page<Need> needs;
 
-    if (userId != null && needTypeId != null) {
-        // Fetch needs based on both userId and needTypeId
-        needs = needDiscoveryService.getNeedByUserIdAndNeedTypeId(userId, needTypeId, pageable);
-    } else if (userId != null) {
-        // Fetch needs based on userId
-        needs = needDiscoveryService.getNeedByUserId(userId, pageable);
-    } else if (needTypeId != null) {
-        // Fetch needs based on needTypeId
+    // Fetch needs based on needTypeId
         needs = needDiscoveryService.getNeedByNeedTypeId(needTypeId, pageable);
-    } else {
-        // Fetch all needs if no specific parameters are provided
-        needs = needDiscoveryService.getAllNeeds(pageable);
-    }
 
     return ResponseEntity.ok(needs);
 }
 
+
+
+    //Fetch all need by providing User Id of nCoord
+        @Operation(summary = "Fetch all Needs by providing UserId of nCoordinator ", description = "Fetch a Need by providing UserId")
+        @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully Fetched Need", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+        @ApiResponse(responseCode = "400", description = "Bad Input"),
+        @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/serve-need/need/user/{userId}")
+    public ResponseEntity<Page<Need>> getAllNeedsByUserId(
+        @PathVariable(required = true) @Parameter(description = "User ID") String userId,
+        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
+        @RequestParam(required = true) NeedStatus status) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Need> needs;
+
+
+        // Fetch needs based on userId
+        needs = needDiscoveryService.getNeedByUserIdAndStatus(userId, status, pageable);
+    
+        return ResponseEntity.ok(needs);
+}
 
 
 }

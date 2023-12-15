@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.request.NeedPlanRequest;
+import com.sunbird.serve.need.models.response.NeedPlanResponse;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
@@ -51,10 +52,16 @@ public class NeedPlanController {
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
     @GetMapping("/serve-need/need-plan/{needId}")
-    public ResponseEntity<List<NeedPlan>> getByNeedId(@PathVariable String needId) {
-        List<NeedPlan> needPlan = needPlanService.getByNeedId(needId);
+   public ResponseEntity<List<NeedPlanResponse>> getByNeedId(@PathVariable String needId) {
+    List<NeedPlanResponse> needPlan = needPlanService.getByNeedId(needId);
+
+    if (!needPlan.isEmpty()) {
         return ResponseEntity.ok(needPlan);
+    } else {
+        return ResponseEntity.notFound().build();
     }
+}
+
 
      //Raise Need with Need Request and Request Header
     @Operation(summary = "Create Need Plan by filling in request body", description = "Initiate the process of creating a Need Plan")

@@ -3,6 +3,7 @@ package com.sunbird.serve.need;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.request.NeedPlanRequest;
+import com.sunbird.serve.need.models.response.NeedPlanResponse;
 import com.sunbird.serve.need.models.Need.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.springframework.http.ResponseEntity;
 
 
 @Service
@@ -30,8 +32,19 @@ public class NeedPlanService {
     }
 
     //Fetch needs based on needTypeId
-    public List<NeedPlan> getByNeedId(String needId) {
-        return needPlanRepository.findByNeedId(needId);
+    public List<NeedPlanResponse> getByNeedId(String needId) {
+        //return needPlanRepository.findByNeedId(needId);
+        List<NeedPlan> needPlans = needPlanRepository.findByNeedId(needId);
+        List<NeedPlanResponse> response = needPlans.stream().map(plan -> {
+            Occurrence occurrence = occurrenceRepository.findById(UUID.fromString(plan.getOccurrenceId())).get();
+            List<TimeSlot> slots = timeSlotRepository.findByOccurrenceId(plan.getOccurrenceId());
+            return NeedPlanResponse.builder()
+                    .plan(plan)
+                    .occurrence(occurrence)
+                    .timeSlots(slots)
+                    .build();
+        }).toList();
+        return response;
     }
 
 
