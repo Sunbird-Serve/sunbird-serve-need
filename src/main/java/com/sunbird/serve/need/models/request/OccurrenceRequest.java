@@ -16,7 +16,6 @@ public class OccurrenceRequest {
 
     private Instant startDate;
     private Instant endDate;
-
     private String days;
     private String frequency;
     private List<TimeSlotRequest> timeSlots;

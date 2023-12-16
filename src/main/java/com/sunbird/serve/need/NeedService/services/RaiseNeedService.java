@@ -38,7 +38,7 @@ public class RaiseNeedService {
         this.needRequirementRepository = needRequirementRepository;
     }
 
-    public Need raiseNeed(RaiseNeedRequest raiseNeedRequest, Map<String, String> headers) {
+   /* public Need raiseNeed(RaiseNeedRequest raiseNeedRequest, Map<String, String> headers) {
         // Convert RaiseNeedRequest to Need entity
         Need need = NeedMapper.mapToEntity(raiseNeedRequest.getNeedRequest());
 
@@ -67,7 +67,58 @@ public class RaiseNeedService {
 
         // Return the saved Need entity
         return savedNeed;
+    } */
+
+    public Need raiseNeed(RaiseNeedRequest request, Map<String, String> headers) {
+        String requirementId = request.getNeedRequest().getRequirementId();
+
+        Occurrence occurrence = occurrenceRepository.save(
+                Occurrence.builder()
+                        .days(request.getNeedRequirementRequest().getOccurrence().getDays())
+                        .frequency(request.getNeedRequirementRequest().getOccurrence().getFrequency())
+                        .startDate(request.getNeedRequirementRequest().getOccurrence().getStartDate())
+                        .endDate(request.getNeedRequirementRequest().getOccurrence().getEndDate())
+                        .build()
+        );
+
+        timeSlotRepository.saveAll(
+                request.getNeedRequirementRequest()
+                        .getOccurrence().getTimeSlots()
+                        .stream().map(req -> TimeSlot.builder()
+                                .day(req.getDay())
+                                .startTime(req.getStartTime())
+                                .endTime(req.getEndTime())
+                                .occurrenceId(occurrence.getId().toString())
+                                .build()).toList()
+        );
+
+        if (requirementId == null) {
+            NeedRequirement needRequirement = needRequirementRepository.save(
+                    NeedRequirement.builder()
+                            .priority(request.getNeedRequirementRequest().getPriority())
+                            .skillDetails(request.getNeedRequirementRequest().getSkillDetails())
+                            .occurrenceId(occurrence.getId().toString())
+                            .volunteersRequired(request.getNeedRequirementRequest().getVolunteersRequired())
+                            .build()
+            );
+
+            requirementId = needRequirement.getId().toString();
+        }
+
+        return needRepository.save(
+                Need.builder()
+                        .needPurpose(request.getNeedRequest().getNeedPurpose())
+                        .needTypeId(request.getNeedRequest().getNeedTypeId())
+                        .entityId(request.getNeedRequest().getEntityId())
+                        .description(request.getNeedRequest().getDescription())
+                        .requirementId(requirementId)
+                        .userId(request.getNeedRequest().getUserId())
+                        .status(request.getNeedRequest().getStatus())
+                        .name(request.getNeedRequest().getName())
+                        .build()
+        );
     }
+
 
     public Need updateNeed(UUID needId, NeedRequest request, Map<String, String> headers) {
         // Check if the need with the given ID exists

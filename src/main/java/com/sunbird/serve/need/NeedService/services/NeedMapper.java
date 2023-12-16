@@ -6,6 +6,7 @@ import com.sunbird.serve.need.models.request.NeedRequirementRequest;
 import com.sunbird.serve.need.models.request.OccurrenceRequest;
 import com.sunbird.serve.need.models.request.TimeSlotRequest;
 import com.sunbird.serve.need.models.Need.Need;
+import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.Need.NeedType;
 import com.sunbird.serve.need.models.Need.NeedRequirement;
 import com.sunbird.serve.need.models.Need.Occurrence;
@@ -41,6 +42,7 @@ public class NeedMapper {
         needRequirement.setOccurrenceId(null);
         needRequirement.setVolunteersRequired(needRequirementRequest.getVolunteersRequired());
         needRequirement.setPriority(needRequirementRequest.getPriority());
+
 
         return needRequirement;
     }

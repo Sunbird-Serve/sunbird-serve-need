@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class NeedTypeDiscoveryController {
 
     private static final Logger logger = LoggerFactory.getLogger(NeedTypeDiscoveryController.class);
@@ -62,7 +64,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/needtype")
+    @GetMapping("/serve-need/needtype/")
     public ResponseEntity<Page<NeedType>> getNeedTypeByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 

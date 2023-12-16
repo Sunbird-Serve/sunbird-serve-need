@@ -21,6 +21,7 @@ import java.util.Map;
 
 
 @RestController
+@CrossOrigin(origins = "*")
 public class NeedController {
 
     private final RaiseNeedService raiseNeedService;
