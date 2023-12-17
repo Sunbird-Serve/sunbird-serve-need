@@ -32,8 +32,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Map;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class NeedPlanController {
 
     private static final Logger logger = LoggerFactory.getLogger(NeedPlanController.class);
