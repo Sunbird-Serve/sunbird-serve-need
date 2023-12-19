@@ -53,7 +53,7 @@ public class NeedPlanController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need-plan/{needId}")
+    @GetMapping("/need-plan/{needId}")
    public ResponseEntity<List<NeedPlanResponse>> getByNeedId(@PathVariable String needId) {
     List<NeedPlanResponse> needPlan = needPlanService.getByNeedId(needId);
 
@@ -72,7 +72,7 @@ public class NeedPlanController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PostMapping("/serve-need/need-plan/create")
+    @PostMapping("/need-plan/create")
     public ResponseEntity<NeedPlan> createNeedPlan(@RequestBody NeedPlanRequest request, @RequestHeader Map<String, String> headers) {
         NeedPlan response = needPlanService.createNeedPlan(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

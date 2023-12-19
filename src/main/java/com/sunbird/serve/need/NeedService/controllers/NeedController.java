@@ -39,7 +39,7 @@ public class NeedController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PostMapping("/serve-need/need/raise")
+    @PostMapping("/need/raise")
     public ResponseEntity<Need> raiseNeed(@RequestBody RaiseNeedRequest request, @RequestHeader Map<String, String> headers) {
         Need response = raiseNeedService.raiseNeed(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -52,7 +52,7 @@ public class NeedController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-     @PutMapping("/serve-need/need/update/{needId}")
+     @PutMapping("/need/update/{needId}")
     public ResponseEntity<Need> updateNeed(
             @PathVariable UUID needId,
             @RequestBody NeedRequest request,

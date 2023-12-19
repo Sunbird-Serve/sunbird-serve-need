@@ -27,7 +27,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @CrossOrigin(origins = "*")
-@RequestMapping("/serve-need/need-requirement")
+@RequestMapping("/need-requirement")
 public class NeedRequirementController {
 
     private final NeedRequirementService needRequirementService;

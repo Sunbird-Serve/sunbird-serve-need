@@ -38,7 +38,7 @@ public class NeedTypeController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PostMapping("/serve-need/need-type/create")
+    @PostMapping("/need-type/create")
     public ResponseEntity<NeedType> createNeedType(@RequestBody CreateNeedTypeRequest request, @RequestHeader Map<String, String> headers) {
         NeedType response = needTypeService.createNeedType(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -51,7 +51,7 @@ public class NeedTypeController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-     @PutMapping("/serve-need/need-type/update/{needTypeId}")
+     @PutMapping("/need-type/update/{needTypeId}")
     public ResponseEntity<NeedType> updateNeedType(
             @PathVariable UUID needTypeId,
             @RequestBody NeedTypeRequest request,

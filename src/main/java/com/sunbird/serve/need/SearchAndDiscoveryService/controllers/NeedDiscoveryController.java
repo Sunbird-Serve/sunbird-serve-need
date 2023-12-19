@@ -49,7 +49,7 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need/{needId}")
+    @GetMapping("/need/{needId}")
     public ResponseEntity<Need> getNeedById(@PathVariable String needId) {
         Optional<Need> need = needDiscoveryService.getNeedById(UUID.fromString(needId));
         return need.map(ResponseEntity::ok)
@@ -63,7 +63,7 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need/")
+    @GetMapping("/need/")
     public ResponseEntity<Page<NeedEntityAndRequirement>> getNeedsByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
@@ -80,7 +80,7 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need/need-type/{needTypeId}")
+    @GetMapping("/need/need-type/{needTypeId}")
 public ResponseEntity<Page<Need>> getAllNeeds(
         @PathVariable(required = true) @Parameter(description = "Need Type ID") String needTypeId,
             @RequestParam(required = false, defaultValue = "0")  Integer page,
@@ -105,7 +105,7 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         @ApiResponse(responseCode = "400", description = "Bad Input"),
         @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need/user/{userId}")
+    @GetMapping("/need/user/{userId}")
     public ResponseEntity<Page<Need>> getAllNeedsByUserId(
         @PathVariable(required = true) @Parameter(description = "User ID") String userId,
         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,

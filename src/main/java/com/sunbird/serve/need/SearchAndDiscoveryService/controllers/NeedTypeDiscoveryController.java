@@ -50,7 +50,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/needtype/{needTypeId}")
+    @GetMapping("/needtype/{needTypeId}")
     public ResponseEntity<NeedType> getNeedTypeById(@PathVariable String needTypeId) {
         Optional<NeedType> needType = needTypeDiscoveryService.getNeedTypeById(UUID.fromString(needTypeId));
         return needType.map(ResponseEntity::ok)
@@ -64,7 +64,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/needtype/")
+    @GetMapping("/needtype/")
     public ResponseEntity<Page<NeedType>> getNeedTypeByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
@@ -81,7 +81,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/needType/read")
+    @GetMapping("/needType/read")
 public ResponseEntity<Page<NeedType>> getAllNeedType(
         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
         @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size,

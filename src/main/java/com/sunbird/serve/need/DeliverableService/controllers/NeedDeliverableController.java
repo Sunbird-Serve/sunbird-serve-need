@@ -52,7 +52,7 @@ public class NeedDeliverableController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/serve-need/need-deliverable/{needPlanId}")
+    @GetMapping("/need-deliverable/{needPlanId}")
     public ResponseEntity<List<NeedDeliverable>> getByNeedId(@PathVariable String needPlanId) {
         List<NeedDeliverable> needDeliverable = needDeliverableService.getByNeedPlanId(needPlanId);
         return ResponseEntity.ok(needDeliverable);
@@ -65,7 +65,7 @@ public class NeedDeliverableController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PostMapping("/serve-need/need-deliverable/create")
+    @PostMapping("/need-deliverable/create")
     public ResponseEntity<NeedDeliverable> createNeedDeliverable(@RequestBody NeedDeliverableRequest request, @RequestHeader Map<String, String> headers) {
         NeedDeliverable response = needDeliverableService.createNeedDeliverable(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -78,7 +78,7 @@ public class NeedDeliverableController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-     @PutMapping("/serve-need/need-deliverable/update/{needDeliverableId}")
+     @PutMapping("/need-deliverable/update/{needDeliverableId}")
     public ResponseEntity<NeedDeliverable> updateNeedDeliverable(
             @PathVariable UUID needDeliverableId,
             @RequestBody NeedDeliverableRequest request,
