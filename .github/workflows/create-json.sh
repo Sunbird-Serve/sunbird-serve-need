@@ -10,7 +10,7 @@ echo $branch_name
 if [ "$branch_name" == "main" ] ; then
 prefix=stage
 #region="ap-south-1"
-elif [ "$branch_name" == release-* ] ; then
+elif [ "$branch_name" == ekal-release-* ] ; then
 prefix=prod
 #region=us-east-1
 fi
