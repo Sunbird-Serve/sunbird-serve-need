@@ -1,5 +1,5 @@
 #/bin/bash
-account_id=049302583731
+account_id=815722535543
 if [ -f /tmp/__secrets.json ] ; then
 rm -f /tmp/__secrets.json 
 fi
@@ -10,7 +10,7 @@ echo $branch_name
 if [ "$branch_name" == "main" ] ; then
 prefix=stage
 #region="ap-south-1"
-elif [ "$branch_name" == "release" ] ; then
+elif [ "$branch_name" == release-* ] ; then
 prefix=prod
 #region=us-east-1
 fi

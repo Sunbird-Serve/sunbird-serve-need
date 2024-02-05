@@ -52,8 +52,8 @@ jobs:
 
       - name: Dump older task definition
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_815722535543 }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_815722535543 }}
         run: |
           aws ecs describe-task-definition --region ${{ env.AWS_REGION }} --task-definition ${{ env.ECS_SERVICE }} --query taskDefinition > .github/workflows/task-definition.json
           aws ecs list-clusters --region ${{ env.AWS_REGION }}
@@ -69,8 +69,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_815722535543 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_815722535543 }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
