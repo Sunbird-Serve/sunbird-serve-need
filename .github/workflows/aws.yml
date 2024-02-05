@@ -8,10 +8,10 @@ on:
   #branches: [ "main" ]
 
 env:
-  AWS_REGION: ${{ github.ref == 'refs/heads/main' && 'us-east-1' || startsWith(github.ref, 'refs/heads/ekal-release-') && 'ap-south-1' }}
+  AWS_REGION: ${{ github.ref == 'refs/heads/main' && 'us-east-1' || startsWith(github.ref, 'refs/heads/ekal-release-need-*') && 'ap-south-1' }}
   ECR_REPOSITORY: sunbird-serve-need # set this to your Amazon ECR repository name
   ECS_SERVICE: sunbird-serve-need # set this to your Amazon ECS service name
-  ECS_CLUSTER: ${{ github.ref == 'refs/heads/main' && 'ecs-staging' || startsWith(github.ref, 'refs/heads/ekal-release-') && 'ecs-production' }}
+  ECS_CLUSTER: ${{ github.ref == 'refs/heads/main' && 'ecs-staging' || startsWith(github.ref, 'refs/heads/ekal-release-need-*') && 'ecs-production' }}
   ECS_TASK_DEFINITION:
     .github/workflows/task-definition.json # set this to the path to your Amazon ECS task definition
     # file, e.g. .aws/task-definition.json
@@ -35,13 +35,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set environment variables for the "ekal-release-" branch
+      - name: Set environment variables for the "ekal-release-need-*" branch
         run: |
-          if [ "${GITHUB_REF##*/}" = "ekal-release-" ]; then
-            echo "Setting environment variables for ekal-release- branch"
+          if [ "${GITHUB_REF##*/}" = "ekal-release-need-*" ]; then
+            echo "Setting environment variables for ekal-release-need-* branch"
             echo "environment=stage-" >> $GITHUB_ENV
           else
-            echo "ekal-release- branch not detected. No environment variables to set."
+            echo "ekal-release-need-* branch not detected. No environment variables to set."
           fi
 
       - name: Shell script to create JSON
