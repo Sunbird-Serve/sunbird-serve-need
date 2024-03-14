@@ -28,6 +28,7 @@ public class NeedDiscoveryService {
     private final NeedDiscoveryRepository needDiscoveryRepository;
     private final NeedRequirementRepository needRequirementRepository;
     private final EntityRepository entityRepository;
+    private final EntitySearchRepository entitySearchRepository;
     private final NeedTypeRepository needTypeRepository;
     private final OccurrenceRepository occurrenceRepository;
     private final TimeSlotRepository timeSlotRepository;
@@ -37,12 +38,14 @@ public class NeedDiscoveryService {
             NeedDiscoveryRepository needDiscoveryRepository,
             NeedRequirementRepository needRequirementRepository,
             EntityRepository entityRepository,
+            EntitySearchRepository entitySearchRepository,
             NeedTypeRepository needTypeRepository,
             OccurrenceRepository occurrenceRepository,
             TimeSlotRepository timeSlotRepository) {
         this.needDiscoveryRepository = needDiscoveryRepository;
         this.needRequirementRepository = needRequirementRepository;
         this.entityRepository = entityRepository;
+        this.entitySearchRepository = entitySearchRepository;
         this.needTypeRepository = needTypeRepository;
         this.occurrenceRepository = occurrenceRepository;
         this.timeSlotRepository = timeSlotRepository;
@@ -51,6 +54,11 @@ public class NeedDiscoveryService {
     //Fetch all the needs 
     public Page<Need> getAllNeeds(Pageable pageable) {
         return needDiscoveryRepository.findAll(pageable);
+    }
+
+    //Fetch all the entities 
+    public Page<Entity> getAllEntity(EntityStatus status,Pageable pageable) {
+        return entityRepository.findAllByStatus(status, pageable);
     }
 
     //Fetch needs based on needId

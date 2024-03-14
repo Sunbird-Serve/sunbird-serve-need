@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.Need;
+import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
 import java.util.List;
 
@@ -54,6 +56,24 @@ public class NeedDiscoveryController {
         Optional<Need> need = needDiscoveryService.getNeedById(UUID.fromString(needId));
         return need.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    //Fetch all entities
+    @Operation(summary = "Fetch all entities", description = "Fetch all entities")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Entities", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/entity/")
+    public ResponseEntity<Page<Entity>> getAllEntity(
+         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
+            @RequestParam EntityStatus status)
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Entity> allEntity = needDiscoveryService.getAllEntity(status, pageable);
+        return ResponseEntity.ok(allEntity);
     }
 
     //Fetch all needs based on its status
