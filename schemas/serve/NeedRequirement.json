@@ -43,13 +43,13 @@
           "type": "string"
         },
         "startDate": {
-              "type": "string",
-              "format": "date"
-            },
+          "type": "string",
+          "format": "date"
+        },
         "endDate": {
-              "type": "string",
-              "format": "date"
-            },
+          "type": "string",
+          "format": "date"
+        },
         "timeSlotsAndDays": {
           "type": "object",
           "properties": {
@@ -66,20 +66,41 @@
               }
             }
           },
-          "required": ["timeSlot", "days"],
+          "required": ["startTime", "endTime", "days"],
           "additionalProperties": false
         },
         "priority": {
           "type": "string"
+        },
+        "inputURLs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InputURLs"
+          }
         }
       },
-      "required": ["frequency", "volunteersRequired","startDate","endDate"],
+      "required": ["frequency", "volunteersRequired", "startDate", "endDate"],
       "additionalProperties": true
     }
   },
   "required": ["SkillDetail", "PrerequisiteDetail"],
   "additionalProperties": false,
   "definitions": {
+    "InputURLs": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "softwarePlatforms": {
+          "type": "string",
+          "enum": ["gmeet", "skype", "teams", "webex", "gdrive", "github", "others"]
+        }
+      },
+      "required": ["url", "softwarePlatforms"],
+      "additionalProperties": false
+    },
     "SystemFields": {
       "type": "object",
       "properties": {
