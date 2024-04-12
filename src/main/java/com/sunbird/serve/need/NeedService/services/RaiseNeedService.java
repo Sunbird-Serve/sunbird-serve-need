@@ -38,37 +38,7 @@ public class RaiseNeedService {
         this.needRequirementRepository = needRequirementRepository;
     }
 
-   /* public Need raiseNeed(RaiseNeedRequest raiseNeedRequest, Map<String, String> headers) {
-        // Convert RaiseNeedRequest to Need entity
-        Need need = NeedMapper.mapToEntity(raiseNeedRequest.getNeedRequest());
-
-        // Save the Need entity
-        Need savedNeed = needRepository.save(need);
-
-        // Convert NeedRequirementRequest to NeedRequirement entity
-        NeedRequirement needRequirement = NeedMapper.mapToNeedRequirement(raiseNeedRequest.getNeedRequirementRequest());
-        needRequirement.setOccurrenceId(savedNeed.getId().toString()); // Set the occurrence ID
-
-        // Save the NeedRequirement entity
-        NeedRequirement savedNeedRequirement = needRequirementRepository.save(needRequirement);
-
-        // Convert OccurrenceRequest to Occurrence entity
-        Occurrence occurrence = NeedMapper.mapToOccurrence(raiseNeedRequest.getNeedRequirementRequest().getOccurrence());
-        occurrence.setId(UUID.fromString(savedNeedRequirement.getOccurrenceId())); // Set the occurrence ID
-
-        // Save the Occurrence entity
-        Occurrence savedOccurrence = occurrenceRepository.save(occurrence);
-
-        // Convert TimeSlotRequest to List<TimeSlot> entities
-        List<TimeSlot> timeSlots = NeedMapper.mapToTimeSlots(savedOccurrence.getId(), raiseNeedRequest.getNeedRequirementRequest().getOccurrence().getTimeSlots());
-
-        // Save the list of TimeSlot entities
-        timeSlotRepository.saveAll(timeSlots);
-
-        // Return the saved Need entity
-        return savedNeed;
-    } */
-
+    //Raise Need 
     public Need raiseNeed(RaiseNeedRequest request, Map<String, String> headers) {
         String requirementId = request.getNeedRequest().getRequirementId();
 
@@ -120,38 +90,92 @@ public class RaiseNeedService {
     }
 
 
-    public Need updateNeed(UUID needId, NeedRequest request, Map<String, String> headers) {
+    public Need updateNeed(UUID needId, RaiseNeedRequest request, Map<String, String> headers) {
         // Check if the need with the given ID exists
         Need existingNeed = needRepository.findById(needId)
         .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + needId));
 
+        UUID requirementId = UUID.fromString(existingNeed.getRequirementId());
+
+        NeedRequirement existingNeedRequirement = needRequirementRepository.findById(requirementId)
+        .orElseThrow(() -> new NoSuchElementException("Need Requirement not found with ID: " + requirementId));;
+
+        NeedRequest needRequest = request.getNeedRequest();
+        NeedRequirementRequest needReqRequest = request.getNeedRequirementRequest();
+
           // Update the existing need with new values
-        if (request.getNeedTypeId() != null) {
-            existingNeed.setNeedTypeId(request.getNeedTypeId());
+        if (needRequest.getNeedTypeId() != null) {
+            existingNeed.setNeedTypeId(needRequest.getNeedTypeId());
         }
          // Update the existing need with new values
-        if (request.getEntityId() != null) {
-            existingNeed.setEntityId(request.getEntityId());
+        if (needRequest.getEntityId() != null) {
+            existingNeed.setEntityId(needRequest.getEntityId());
         }
         // Update the existing need with new values
-        if (request.getUserId() != null) {
-            existingNeed.setUserId(request.getUserId());
+        if (needRequest.getUserId() != null) {
+            existingNeed.setUserId(needRequest.getUserId());
         }
         // Update the existing need with new values
-        if (request.getStatus() != null) {
-            existingNeed.setStatus(request.getStatus());
+        if (needRequest.getStatus() != null) {
+            existingNeed.setStatus(needRequest.getStatus());
         }
 
-        if (request.getNeedPurpose() != null) {
-            existingNeed.setNeedPurpose(request.getNeedPurpose());
+        if (needRequest.getNeedPurpose() != null) {
+            existingNeed.setNeedPurpose(needRequest.getNeedPurpose());
         }
 
-        if (request.getDescription() != null) {
-            existingNeed.setDescription(request.getDescription());
+        if (needRequest.getDescription() != null) {
+            existingNeed.setDescription(needRequest.getDescription());
         }
     
-        if (request.getName() != null) {
-            existingNeed.setName(request.getName());
+        if (needRequest.getName() != null) {
+            existingNeed.setName(needRequest.getName());
+        }
+
+        //Need Requirement
+        if (needReqRequest.getSkillDetails() != null) {
+            existingNeedRequirement.setSkillDetails(needReqRequest.getSkillDetails());
+        }
+
+        if (needReqRequest.getPriority() != null) {
+            existingNeedRequirement.setPriority(needReqRequest.getPriority());
+        }
+    
+        if (needReqRequest.getVolunteersRequired() != null) {
+            existingNeedRequirement.setVolunteersRequired(needReqRequest.getVolunteersRequired());
+        }
+
+        // Update Occurrence if provided
+        OccurrenceRequest occurrenceRequest = needReqRequest.getOccurrence();
+        if (occurrenceRequest != null) {
+            Occurrence existingOccurrence = occurrenceRepository.findById(UUID.fromString(existingNeedRequirement.getOccurrenceId()))
+                    .orElseThrow(() -> new NoSuchElementException("Occurrence not found with ID: " + existingNeedRequirement.getOccurrenceId()));
+            
+            existingOccurrence.setDays(occurrenceRequest.getDays());
+            existingOccurrence.setFrequency(occurrenceRequest.getFrequency());
+            existingOccurrence.setStartDate(occurrenceRequest.getStartDate());
+            existingOccurrence.setEndDate(occurrenceRequest.getEndDate());
+
+            // Save the updated occurrence
+            occurrenceRepository.save(existingOccurrence);
+        }
+
+        // Update Time Slots if provided
+        if (occurrenceRequest != null && occurrenceRequest.getTimeSlots() != null) {
+            List<TimeSlotRequest> timeSlotRequests = occurrenceRequest.getTimeSlots();
+            List<TimeSlot> existingTimeSlots = timeSlotRepository.findByOccurrenceId(existingNeedRequirement.getOccurrenceId());
+
+            for (int i = 0; i < timeSlotRequests.size(); i++) {
+                TimeSlotRequest timeSlotRequest = timeSlotRequests.get(i);
+                TimeSlot existingTimeSlot = existingTimeSlots.get(i);
+
+                existingTimeSlot.setDay(timeSlotRequest.getDay());
+                existingTimeSlot.setStartTime(timeSlotRequest.getStartTime());
+                existingTimeSlot.setEndTime(timeSlotRequest.getEndTime());
+            }
+
+            // Save the updated time slots
+            timeSlotRepository.saveAll(existingTimeSlots);
         }
 
         // Save the updated need

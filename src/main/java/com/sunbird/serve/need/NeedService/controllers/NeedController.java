@@ -55,7 +55,7 @@ public class NeedController {
      @PutMapping("/need/update/{needId}")
     public ResponseEntity<Need> updateNeed(
             @PathVariable UUID needId,
-            @RequestBody NeedRequest request,
+            @RequestBody RaiseNeedRequest request,
             @RequestHeader Map<String, String> headers) {
 
         Need updatedNeed = raiseNeedService.updateNeed(needId, request, headers);
