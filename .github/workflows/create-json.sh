@@ -18,7 +18,7 @@ printf '{
 	 "secrets": [' > /tmp/__secrets.json
 
 
-for line in `cat .${prefix}env`
+for line in `cat .env`
 do
   key=$line
   if [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]]; then
