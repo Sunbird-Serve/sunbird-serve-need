@@ -3,9 +3,14 @@ package com.sunbird.serve.need;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
+import com.sunbird.serve.need.models.Need.DeliverableDetails;
+import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
+import com.sunbird.serve.need.models.enums.SoftwarePlatform;
+import com.sunbird.serve.need.models.enums.TaskType;
 import com.sunbird.serve.need.models.request.NeedPlanRequest;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
+import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
 import com.sunbird.serve.need.models.response.NeedPlanResponse;
 import com.sunbird.serve.need.models.Need.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,17 +31,26 @@ public class NeedPlanService {
     private final OccurrenceRepository occurrenceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final NeedDeliverableRepository needDeliverableRepository;
+    private final DeliverableDetailsService deliverableDetailsService;
+    private final DeliverableDetailsRepository deliverableDetailsRepository;
+    private final InputParametersRepository inputParametersRepository;
 
     @Autowired
     public NeedPlanService(
             NeedPlanRepository needPlanRepository,
             OccurrenceRepository occurrenceRepository,
             TimeSlotRepository timeSlotRepository, 
-            NeedDeliverableRepository needDeliverableRepository) {
+            NeedDeliverableRepository needDeliverableRepository,
+            DeliverableDetailsRepository deliverableDetailsRepository,
+            DeliverableDetailsService deliverableDetailsService,
+            InputParametersRepository inputParametersRepository) {
         this.needPlanRepository = needPlanRepository;
         this.occurrenceRepository = occurrenceRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.needDeliverableRepository = needDeliverableRepository;
+        this.deliverableDetailsRepository = deliverableDetailsRepository;
+        this.deliverableDetailsService = deliverableDetailsService;
+        this.inputParametersRepository = inputParametersRepository;
     }
 
     //Fetch needs based on needTypeId
@@ -64,6 +78,8 @@ public class NeedPlanService {
         NeedPlan savedNeedPlan = needPlanRepository.save(needPlan);
 
         createNeedDeliverableForPlan(savedNeedPlan, headers);
+
+        createDeliverableDetails(savedNeedPlan, headers);
 
         // Return the saved Need entity
         return savedNeedPlan;
@@ -94,10 +110,27 @@ public class NeedPlanService {
             }
         }
 
-
-        //need.setStatus(NeedStatus.Approved);
-        //needRepository.save(need);
 }
 
+private void createDeliverableDetails(NeedPlan needPlan, Map<String, String> headers) {
+
+        DeliverableDetails deliverableDetails = new DeliverableDetails();
+        InputParameters inputParameters = new InputParameters();
+        
+        List<NeedDeliverable> needDeliverable = needDeliverableRepository.findByNeedPlanId(needPlan.getNeedId());
+        String needDeliverableId = needDeliverable.get(0).getId().toString();
+        deliverableDetails.setNeedDeliverableId(needDeliverableId);
+        deliverableDetails.setTaskType(TaskType.Session);
+
+        inputParameters.setInputUrl("To be added soon");
+        inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
+
+        DeliverableDetails savedDeliverableDetails = deliverableDetailsRepository.save(deliverableDetails);
+
+        InputParameters savedInputParameters = inputParametersRepository.save(inputParameters);
+
+        
+
+}
 
 }
