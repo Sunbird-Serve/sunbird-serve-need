@@ -113,24 +113,36 @@ public class NeedPlanService {
 }
 
 private void createDeliverableDetails(NeedPlan needPlan, Map<String, String> headers) {
-
-        DeliverableDetails deliverableDetails = new DeliverableDetails();
-        InputParameters inputParameters = new InputParameters();
         
-        List<NeedDeliverable> needDeliverable = needDeliverableRepository.findByNeedPlanId(needPlan.getNeedId());
-        String needDeliverableId = needDeliverable.get(0).getId().toString();
-        deliverableDetails.setNeedDeliverableId(needDeliverableId);
-        deliverableDetails.setTaskType(TaskType.Session);
+        //List<NeedDeliverable> needDeliverable = needDeliverableRepository.findByNeedPlanId(needPlan.getNeedId());
+        List<NeedDeliverable> needDeliverableList = needDeliverableRepository.findByNeedPlanId(needPlan.getId().toString());
 
-        inputParameters.setInputUrl("To be added soon");
-        inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
-
-        DeliverableDetails savedDeliverableDetails = deliverableDetailsRepository.save(deliverableDetails);
-
-        InputParameters savedInputParameters = inputParametersRepository.save(inputParameters);
-
+        if (!needDeliverableList.isEmpty()) {
+            for (NeedDeliverable needDeliverable : needDeliverableList) {
+                // Create a new DeliverableDetails object for each NeedDeliverable
+                DeliverableDetails deliverableDetails = new DeliverableDetails();
         
+                // Set properties for DeliverableDetails
+                deliverableDetails.setNeedDeliverableId(needDeliverable.getId().toString());
+                deliverableDetails.setTaskType(TaskType.Session);
 
+                // Save DeliverableDetails
+                DeliverableDetails savedDeliverableDetails = deliverableDetailsRepository.save(deliverableDetails);
+
+                // Create a new InputParameters object for each NeedDeliverable
+                InputParameters inputParameters = new InputParameters();
+
+                // Set properties for InputParameters
+                inputParameters.setDeliverableDetailsId(savedDeliverableDetails.getId().toString());
+                inputParameters.setInputUrl("To be added soon");
+                inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
+
+                // Save InputParameters
+                inputParametersRepository.save(inputParameters);
+            }
+        } else {
+            System.out.println("No deliverables found for the given need plan ID.");
+        }
 }
 
 }

@@ -55,7 +55,7 @@ public class DeliverableDetailsController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/need-deliverable/{needId}")
+    @GetMapping("/deliverable-details/{needId}")
     public ResponseEntity<List<DeliverableDetails>> getByNeedId(@PathVariable String needId) {
         List<DeliverableDetails> deliverableDetails = deliverableDetailsService.getNDByNeedId(needId);
         return ResponseEntity.ok(deliverableDetails);
