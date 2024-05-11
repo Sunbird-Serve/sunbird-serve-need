@@ -23,8 +23,6 @@ public class NeedPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    private String assignedUserId;
     private String needId;
     private String name;
 

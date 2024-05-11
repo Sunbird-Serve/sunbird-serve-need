@@ -16,7 +16,6 @@ public class DeliverableMapper {
     public static NeedPlan mapToEntity(NeedPlanRequest needPlanRequest) {
         // Need request is mapped to the need entity
         NeedPlan needPlan = new NeedPlan();
-        needPlan.setAssignedUserId(needPlanRequest.getAssignedUserId());
         needPlan.setNeedId(needPlanRequest.getNeedId());
         needPlan.setName(needPlanRequest.getName());
         needPlan.setStatus(needPlanRequest.getStatus());

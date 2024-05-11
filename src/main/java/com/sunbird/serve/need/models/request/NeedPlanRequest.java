@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NeedPlanRequest {
-   private String assignedUserId;
    private String needId;
    private String name;
    private NeedStatus status;
