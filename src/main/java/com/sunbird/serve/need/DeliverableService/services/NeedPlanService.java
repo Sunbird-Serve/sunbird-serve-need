@@ -69,6 +69,10 @@ public class NeedPlanService {
         return response;
     }
 
+    //Fetch need plan based on needPlanId
+    public Optional<NeedPlan> getNeedPlanById(UUID needPlanId) {
+        return needPlanRepository.findById(needPlanId);
+    }
 
     public NeedPlan createNeedPlan(NeedPlanRequest needPlanRequest, Map<String, String> headers) {
         // Convert RaiseNeedRequest to Need entity

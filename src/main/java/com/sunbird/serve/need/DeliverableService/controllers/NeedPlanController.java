@@ -62,6 +62,7 @@ public class NeedPlanController {
     } else {
         return ResponseEntity.notFound().build();
     }
+
 }
 
 
@@ -78,5 +79,18 @@ public class NeedPlanController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+//Fetch all need plan based on need plan id
+    @Operation(summary = "Fetch a Need Plan by providing NeedPlanId", description = "Fetch a NeedPlan by providing NeedPlanId")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Need Plan", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/need-plan/read/{needPlanId}")
+    public ResponseEntity<NeedPlan> getNeedPlanById(@PathVariable String needPlanId) {
+        Optional<NeedPlan> needPlan = needPlanService.getNeedPlanById(UUID.fromString(needPlanId));
+        return needPlan.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
 }
