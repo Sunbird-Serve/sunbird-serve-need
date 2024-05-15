@@ -70,8 +70,20 @@ public class NeedPlanService {
     }
 
     //Fetch need plan based on needPlanId
-    public Optional<NeedPlan> getNeedPlanById(UUID needPlanId) {
-        return needPlanRepository.findById(needPlanId);
+    public Optional<NeedPlanResponse> getNeedPlanById(UUID needPlanId) {
+        Optional<NeedPlan> optionalNeedPlan = needPlanRepository.findById(needPlanId);
+    
+    return optionalNeedPlan.map(plan -> {
+        Occurrence occurrence = occurrenceRepository.findById(UUID.fromString(plan.getOccurrenceId()))
+                .orElseThrow(() -> new RuntimeException("Occurrence not found"));
+        List<TimeSlot> slots = timeSlotRepository.findByOccurrenceId(plan.getOccurrenceId());
+        
+        return NeedPlanResponse.builder()
+                .plan(plan)
+                .occurrence(occurrence)
+                .timeSlots(slots)
+                .build();
+    });
     }
 
     public NeedPlan createNeedPlan(NeedPlanRequest needPlanRequest, Map<String, String> headers) {

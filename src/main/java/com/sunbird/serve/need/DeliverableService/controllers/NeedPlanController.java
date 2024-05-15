@@ -87,9 +87,9 @@ public class NeedPlanController {
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
     @GetMapping("/need-plan/read/{needPlanId}")
-    public ResponseEntity<NeedPlan> getNeedPlanById(@PathVariable String needPlanId) {
-        Optional<NeedPlan> needPlan = needPlanService.getNeedPlanById(UUID.fromString(needPlanId));
-        return needPlan.map(ResponseEntity::ok)
+    public ResponseEntity<NeedPlanResponse> getNeedPlanById(@PathVariable String needPlanId) {
+        Optional<NeedPlanResponse> needPlan = needPlanService.getNeedPlanById(UUID.fromString(needPlanId));
+         return needPlan.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
