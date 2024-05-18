@@ -5,6 +5,7 @@ import com.sunbird.serve.need.models.Need.DeliverableDetails;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
+import com.sunbird.serve.need.models.response.DeliverableDetailsResponse;
 import com.sunbird.serve.need.models.Need.InputParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +38,14 @@ public class DeliverableDetailsService {
     }
 
     //Fetch need deliverable based on needPlanId
-    public List<DeliverableDetails> getNDByNeedId(String needId) {
+    public List<DeliverableDetailsResponse> getNDByNeedId(String needId) {
         //NeedPlan needPlans = needPlanRepository.findByNeedId(needId);
         //UUID needPlanId = needPlans.getId();
         //NeedDeliverable needDeliverable = needDeliverableRepository.findByNeedPlanId(needPlanId);
         //UUID needDeliverableId = needDeliverable.getId();
         List<NeedPlan> needPlans = needPlanRepository.findByNeedId(needId);
         List<DeliverableDetails> deliverableDetailsList = new ArrayList<>();
+        List<DeliverableDetailsResponse> result = new ArrayList<>();
 
         for (NeedPlan needPlan : needPlans) {
             String needPlanId = needPlan.getId().toString();
@@ -51,10 +53,14 @@ public class DeliverableDetailsService {
             for (NeedDeliverable deliverable : needDeliverable) {
                 String needDeliverableId = deliverable.getId().toString();
                 deliverableDetailsList.addAll(deliverableDetailsRepository.findByNeedDeliverableId(needDeliverableId));
+                List<InputParameters> inputParametersList = inputParametersRepository.findByDeliverableDetailsId(deliverableDetailsList.get(0).getId().toString());
+                // Create a response object with both lists
+                DeliverableDetailsResponse response = new DeliverableDetailsResponse(deliverableDetailsList, inputParametersList);
+                result.add(response);
             }
         }
 
-        return deliverableDetailsList;
+        return result;
     }
 
 public InputParameters updateDeliverableDetails(String needId, DeliverableDetailsRequest request, Map<String, String> headers) {

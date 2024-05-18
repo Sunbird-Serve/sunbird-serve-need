@@ -11,6 +11,7 @@ import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
+import com.sunbird.serve.need.models.response.DeliverableDetailsResponse;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
@@ -56,8 +57,8 @@ public class DeliverableDetailsController {
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
     @GetMapping("/deliverable-details/{needId}")
-    public ResponseEntity<List<DeliverableDetails>> getByNeedId(@PathVariable String needId) {
-        List<DeliverableDetails> deliverableDetails = deliverableDetailsService.getNDByNeedId(needId);
+    public ResponseEntity<List<DeliverableDetailsResponse>> getByNeedId(@PathVariable String needId) {
+        List<DeliverableDetailsResponse> deliverableDetails = deliverableDetailsService.getNDByNeedId(needId);
         return ResponseEntity.ok(deliverableDetails);
     }
 
