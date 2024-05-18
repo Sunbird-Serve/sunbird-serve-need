@@ -70,7 +70,10 @@ public InputParameters updateDeliverableDetails(String needId, DeliverableDetail
         // Update the existing need with new values
         existingInputParameters.setInputUrl(request.getInputUrl());
         existingInputParameters.setSoftwarePlatform(request.getSoftwarePlatform());
-
+        existingInputParameters.setDeliverableDate(request.getDeliverableDate());
+        existingInputParameters.setStartTime(request.getStartTime());
+        existingInputParameters.setEndTime(request.getEndTime());
+        
         // Save the updated need
         return inputParametersRepository.save(existingInputParameters);
     }

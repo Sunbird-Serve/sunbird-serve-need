@@ -23,6 +23,13 @@ import java.util.*;
 import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 
 @Service
 public class NeedPlanService {
@@ -145,16 +152,38 @@ private void createDeliverableDetails(NeedPlan needPlan, Map<String, String> hea
                 // Save DeliverableDetails
                 DeliverableDetails savedDeliverableDetails = deliverableDetailsRepository.save(deliverableDetails);
 
-                // Create a new InputParameters object for each NeedDeliverable
-                InputParameters inputParameters = new InputParameters();
+                Occurrence occurrence = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId())).get();
+                List<TimeSlot> timeSlots = timeSlotRepository.findByOccurrenceId(needPlan.getOccurrenceId());
+                
+                // Convert the start and end dates from Instant to LocalDate
+                LocalDate startDate = occurrence.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate endDate = occurrence.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate();
+    
+                // Parse the days of the week
+                List<DayOfWeek> daysOfWeek = Arrays.stream(occurrence.getDays().split(","))
+                                           .map(String::trim)
+                                           .map(DayOfWeek::valueOf)
+                                           .collect(Collectors.toList());
 
-                // Set properties for InputParameters
-                inputParameters.setDeliverableDetailsId(savedDeliverableDetails.getId().toString());
-                inputParameters.setInputUrl("To be added soon");
-                inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
-
-                // Save InputParameters
-                inputParametersRepository.save(inputParameters);
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            // Check if the current day is one of the specified days
+                if (daysOfWeek.contains(date.getDayOfWeek())) {
+                    for (TimeSlot timeSlot : timeSlots) {
+                        // Set input parameters
+                        InputParameters inputParameters = new InputParameters();
+                        inputParameters.setDeliverableDetailsId(savedDeliverableDetails.getId().toString());
+                        inputParameters.setInputUrl("To be added soon");
+                        inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
+                        inputParameters.setStartTime(timeSlot.getStartTime());
+                        inputParameters.setEndTime(timeSlot.getEndTime());
+                        Instant deliverableDate = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
+                        inputParameters.setDeliverableDate(deliverableDate);
+                    
+                        // Save the input parameters
+                        inputParametersRepository.save(inputParameters);
+                    }
+                }
+            }
             }
         } else {
             System.out.println("No deliverables found for the given need plan ID.");

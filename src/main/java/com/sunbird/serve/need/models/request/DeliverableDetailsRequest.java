@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
+import java.time.Instant;
+
+
 
 @Builder
 @Data
@@ -16,4 +19,7 @@ public class DeliverableDetailsRequest {
    private String needId;
    private String inputUrl;
    private SoftwarePlatform softwarePlatform;
+   private Instant startTime;
+   private Instant endTime;
+   private Instant deliverableDate;
 }

@@ -30,6 +30,10 @@ public class InputParameters {
     private String inputUrl;
     private SoftwarePlatform softwarePlatform;
 
+    private Instant deliverableDate;
+    private Instant startTime;
+    private Instant endTime;
+
     @CreationTimestamp
     private Instant createdAt;
 
