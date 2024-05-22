@@ -30,6 +30,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 public class NeedPlanService {
@@ -41,6 +44,8 @@ public class NeedPlanService {
     private final DeliverableDetailsService deliverableDetailsService;
     private final DeliverableDetailsRepository deliverableDetailsRepository;
     private final InputParametersRepository inputParametersRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(NeedPlanService.class);
 
     @Autowired
     public NeedPlanService(
@@ -95,6 +100,8 @@ public class NeedPlanService {
 
     public NeedPlan createNeedPlan(NeedPlanRequest needPlanRequest, Map<String, String> headers) {
         // Convert RaiseNeedRequest to Need entity
+
+        logger.info("Inside Need microservice, create need plan: {}", needPlanRequest);
         NeedPlan needPlan = DeliverableMapper.mapToEntity(needPlanRequest);
 
         // Save the Need entity
@@ -152,20 +159,21 @@ private void createDeliverableDetails(NeedPlan needPlan, Map<String, String> hea
                 // Save DeliverableDetails
                 DeliverableDetails savedDeliverableDetails = deliverableDetailsRepository.save(deliverableDetails);
 
-                Occurrence occurrence = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId())).get();
-                List<TimeSlot> timeSlots = timeSlotRepository.findByOccurrenceId(needPlan.getOccurrenceId());
+                //Occurrence occurrence = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId())).get();
+                //List<TimeSlot> timeSlots = timeSlotRepository.findByOccurrenceId(needPlan.getOccurrenceId());
                 
                 // Convert the start and end dates from Instant to LocalDate
-                LocalDate startDate = occurrence.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalDate endDate = occurrence.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate();
+                //LocalDate startDate = occurrence.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate();
+                //LocalDate endDate = occurrence.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate();
     
                 // Parse the days of the week
-                List<DayOfWeek> daysOfWeek = Arrays.stream(occurrence.getDays().split(","))
+                /*List<DayOfWeek> daysOfWeek = Arrays.stream(occurrence.getDays().split(","))
                                            .map(String::trim)
-                                           .map(DayOfWeek::valueOf)
-                                           .collect(Collectors.toList());
+                                           .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
+                                           .collect(Collectors.toList());*/
 
-            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+
+            /*for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             // Check if the current day is one of the specified days
                 if (daysOfWeek.contains(date.getDayOfWeek())) {
                     for (TimeSlot timeSlot : timeSlots) {
@@ -183,7 +191,7 @@ private void createDeliverableDetails(NeedPlan needPlan, Map<String, String> hea
                         inputParametersRepository.save(inputParameters);
                     }
                 }
-            }
+            }*/
             }
         } else {
             System.out.println("No deliverables found for the given need plan ID.");
