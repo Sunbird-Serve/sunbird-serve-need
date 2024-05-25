@@ -1,12 +1,15 @@
 package com.sunbird.serve.need;
 
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
+import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
+import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 
@@ -14,17 +17,31 @@ import java.util.NoSuchElementException;
 public class NeedDeliverableService {
 
     private final NeedDeliverableRepository needDeliverableRepository;
+    private final InputParametersRepository inputParametersRepository;
 
     @Autowired
     public NeedDeliverableService(
-            NeedDeliverableRepository needDeliverableRepository) {
+            NeedDeliverableRepository needDeliverableRepository, 
+            InputParametersRepository inputParametersRepository) {
         this.needDeliverableRepository = needDeliverableRepository;
+        this.inputParametersRepository = inputParametersRepository;
     }
 
-    //Fetch need deliverable based on needPlanId
-    public List<NeedDeliverable> getByNeedPlanId(String needPlanId) {
-        return needDeliverableRepository.findByNeedPlanId(needPlanId);
+   //Fetch need deliverable based on needPlanId
+public NeedDeliverableResponse getByNeedPlanId(String needPlanId) {
+    List<NeedDeliverable> needDeliverables = needDeliverableRepository.findByNeedPlanId(needPlanId);
+    
+    List<InputParameters> inputParameters = new ArrayList<>();
+    for (NeedDeliverable needDeliverable : needDeliverables) {
+        List<InputParameters> params = inputParametersRepository.findByNeedDeliverableId(needDeliverable.getId().toString());
+        inputParameters.addAll(params);
     }
+
+    return NeedDeliverableResponse.builder()
+            .needDeliverable(needDeliverables)
+            .inputParameters(inputParameters)
+            .build();
+}
 
     public NeedDeliverable createNeedDeliverable(NeedDeliverableRequest needDeliverableRequest, Map<String, String> headers) {
         // Convert Need Deliverable Request to Need Deliverable entity

@@ -26,11 +26,9 @@ public class InputParameters {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String deliverableDetailsId;
+    private String needDeliverableId;
     private String inputUrl;
     private SoftwarePlatform softwarePlatform;
-
-    private Instant deliverableDate;
     private Instant startTime;
     private Instant endTime;
 

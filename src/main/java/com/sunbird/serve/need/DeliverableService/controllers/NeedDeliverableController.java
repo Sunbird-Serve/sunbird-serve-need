@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
+import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
@@ -53,8 +54,8 @@ public class NeedDeliverableController {
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
     @GetMapping("/need-deliverable/{needPlanId}")
-    public ResponseEntity<List<NeedDeliverable>> getByNeedId(@PathVariable String needPlanId) {
-        List<NeedDeliverable> needDeliverable = needDeliverableService.getByNeedPlanId(needPlanId);
+    public ResponseEntity<NeedDeliverableResponse> getByNeedId(@PathVariable String needPlanId) {
+        NeedDeliverableResponse needDeliverable = needDeliverableService.getByNeedPlanId(needPlanId);
         return ResponseEntity.ok(needDeliverable);
     }
 

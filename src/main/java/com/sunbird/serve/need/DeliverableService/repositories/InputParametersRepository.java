@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface InputParametersRepository extends JpaRepository<InputParameters, UUID> {
 
-    List<InputParameters> findByDeliverableDetailsId(String deliverableDetailsId);
+    List<InputParameters> findByNeedDeliverableId(String needDeliverableId);
 
 }

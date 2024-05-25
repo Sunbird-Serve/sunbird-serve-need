@@ -41,8 +41,6 @@ public class NeedPlanService {
     private final OccurrenceRepository occurrenceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final NeedDeliverableRepository needDeliverableRepository;
-    private final DeliverableDetailsService deliverableDetailsService;
-    private final DeliverableDetailsRepository deliverableDetailsRepository;
     private final InputParametersRepository inputParametersRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(NeedPlanService.class);
@@ -53,15 +51,11 @@ public class NeedPlanService {
             OccurrenceRepository occurrenceRepository,
             TimeSlotRepository timeSlotRepository, 
             NeedDeliverableRepository needDeliverableRepository,
-            DeliverableDetailsRepository deliverableDetailsRepository,
-            DeliverableDetailsService deliverableDetailsService,
             InputParametersRepository inputParametersRepository) {
         this.needPlanRepository = needPlanRepository;
         this.occurrenceRepository = occurrenceRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.needDeliverableRepository = needDeliverableRepository;
-        this.deliverableDetailsRepository = deliverableDetailsRepository;
-        this.deliverableDetailsService = deliverableDetailsService;
         this.inputParametersRepository = inputParametersRepository;
     }
 
@@ -107,95 +101,62 @@ public class NeedPlanService {
         // Save the Need entity
         NeedPlan savedNeedPlan = needPlanRepository.save(needPlan);
 
-        createNeedDeliverableForPlan(savedNeedPlan, headers);
-
-        createDeliverableDetails(savedNeedPlan, headers);
+        createDeliverablesAndDetails(savedNeedPlan, headers);
 
         // Return the saved Need entity
         return savedNeedPlan;
     }
 
-    // New method to create NeedDeliverable for a given NeedPlan
-    private void createNeedDeliverableForPlan(NeedPlan needPlan, Map<String, String> headers) {
-
-
-        Optional<Occurrence> occurrence = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId()));
-        if (occurrence.isPresent()) {
-            LocalDate startDate = occurrence.get().getStartDate().atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
-            LocalDate endDate = occurrence.get().getEndDate().atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
-            List<DayOfWeek> days = Arrays.stream(occurrence.get().getDays().split(",")).map((day) -> DayOfWeek.valueOf(day.trim().toUpperCase())).toList();
-
-            List<LocalDate> deliverableDates = startDate.datesUntil(endDate, Period.ofDays(1))
-                    .filter(localDate ->  days.contains(localDate.getDayOfWeek()))
-                    .toList();
-
-            for(LocalDate date: deliverableDates) {
-                needDeliverableRepository.save(
-                        NeedDeliverable.builder()
-                                .needPlanId(needPlan.getId().toString())
-                                .deliverableDate(date)
-                                .status(NeedDeliverableStatus.NotStarted)
-                                .build()
-                );
-            }
-        }
-
-}
-
-private void createDeliverableDetails(NeedPlan needPlan, Map<String, String> headers) {
+    private void createDeliverablesAndDetails(NeedPlan needPlan, Map<String, String> headers) {
+    Optional<Occurrence> occurrenceOptional = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId()));
+    if (occurrenceOptional.isPresent()) {
+        Occurrence occurrence = occurrenceOptional.get();
+        LocalDate startDate = occurrence.getStartDate().atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
+        LocalDate endDate = occurrence.getEndDate().atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
+        List<TimeSlot> timeSlots = timeSlotRepository.findByOccurrenceId(needPlan.getOccurrenceId());
         
-        //List<NeedDeliverable> needDeliverable = needDeliverableRepository.findByNeedPlanId(needPlan.getNeedId());
-        List<NeedDeliverable> needDeliverableList = needDeliverableRepository.findByNeedPlanId(needPlan.getId().toString());
+        List<DayOfWeek> daysOfWeek = Arrays.stream(occurrence.getDays().split(","))
+                .map(day -> DayOfWeek.valueOf(day.trim().toUpperCase()))
+                .collect(Collectors.toList());
 
-        if (!needDeliverableList.isEmpty()) {
-            for (NeedDeliverable needDeliverable : needDeliverableList) {
-                // Create a new DeliverableDetails object for each NeedDeliverable
-                DeliverableDetails deliverableDetails = new DeliverableDetails();
-        
-                // Set properties for DeliverableDetails
-                deliverableDetails.setNeedDeliverableId(needDeliverable.getId().toString());
-                deliverableDetails.setTaskType(TaskType.Session);
+        List<LocalDate> deliverableDates = startDate.datesUntil(endDate.plusDays(1), Period.ofDays(1))
+                .filter(localDate -> daysOfWeek.contains(localDate.getDayOfWeek()))
+                .collect(Collectors.toList());
 
-                // Save DeliverableDetails
-                DeliverableDetails savedDeliverableDetails = deliverableDetailsRepository.save(deliverableDetails);
+        for (LocalDate date : deliverableDates) {
+            NeedDeliverable needDeliverable = NeedDeliverable.builder()
+                    .needPlanId(needPlan.getId().toString())
+                    .deliverableDate(date)
+                    .status(NeedDeliverableStatus.NotStarted)
+                    .build();
+            needDeliverable = needDeliverableRepository.save(needDeliverable);
 
-                //Occurrence occurrence = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId())).get();
-                //List<TimeSlot> timeSlots = timeSlotRepository.findByOccurrenceId(needPlan.getOccurrenceId());
-                
-                // Convert the start and end dates from Instant to LocalDate
-                //LocalDate startDate = occurrence.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate();
-                //LocalDate endDate = occurrence.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate();
-    
-                // Parse the days of the week
-                /*List<DayOfWeek> daysOfWeek = Arrays.stream(occurrence.getDays().split(","))
-                                           .map(String::trim)
-                                           .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
-                                           .collect(Collectors.toList());*/
+            
+           if (!timeSlots.isEmpty()) {
+                // Use the first time slot as a representative
+                TimeSlot timeSlot = timeSlots.get(0);
+
+                // Extract time component
+                LocalTime startTime = timeSlot.getStartTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
+                LocalTime endTime = timeSlot.getEndTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
+
+                // Combine with deliverableDate to create ZonedDateTime
+                ZonedDateTime startDateTime = ZonedDateTime.of(date, startTime, ZoneId.of("Asia/Kolkata"));
+                ZonedDateTime endDateTime = ZonedDateTime.of(date, endTime, ZoneId.of("Asia/Kolkata"));
 
 
-            /*for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            // Check if the current day is one of the specified days
-                if (daysOfWeek.contains(date.getDayOfWeek())) {
-                    for (TimeSlot timeSlot : timeSlots) {
-                        // Set input parameters
-                        InputParameters inputParameters = new InputParameters();
-                        inputParameters.setDeliverableDetailsId(savedDeliverableDetails.getId().toString());
-                        inputParameters.setInputUrl("To be added soon");
-                        inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
-                        inputParameters.setStartTime(timeSlot.getStartTime());
-                        inputParameters.setEndTime(timeSlot.getEndTime());
-                        Instant deliverableDate = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
-                        inputParameters.setDeliverableDate(deliverableDate);
-                    
-                        // Save the input parameters
-                        inputParametersRepository.save(inputParameters);
-                    }
-                }
-            }*/
+                InputParameters inputParameters = new InputParameters();
+                inputParameters.setNeedDeliverableId(needDeliverable.getId().toString());
+                inputParameters.setInputUrl("To be added soon");
+                inputParameters.setSoftwarePlatform(SoftwarePlatform.GMEET);
+                inputParameters.setStartTime(startDateTime.toInstant());
+                inputParameters.setEndTime(endDateTime.toInstant());
+
+                inputParametersRepository.save(inputParameters);
             }
-        } else {
-            System.out.println("No deliverables found for the given need plan ID.");
+            
         }
+    }
 }
 
 }
