@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
+import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
+import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.http.HttpStatus;
 import java.util.List;
@@ -87,6 +89,23 @@ public class NeedDeliverableController {
 
         NeedDeliverable updatedNeedDeliverable = needDeliverableService.updateNeedDeliverable(needDeliverableId, request, headers);
         return ResponseEntity.ok(updatedNeedDeliverable);
+    }
+
+    //Update Need Deliverable Details
+    @Operation(summary = "Update a Need Deliverable Details with appropritate values", description = "Update an exsisting need deliverable details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Updated Need Deliverable Details", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+     @PutMapping("/deliverable-details/update/{needDeliverableId}")
+    public ResponseEntity<List<InputParameters>> updateDeliverableDetails(
+            @PathVariable String needDeliverableId,
+            @RequestBody DeliverableDetailsRequest request,
+            @RequestHeader Map<String, String> headers) {
+
+        List<InputParameters> updatedInputParameters = needDeliverableService.updateInputParameters(needDeliverableId, request, headers);
+        return ResponseEntity.ok(updatedInputParameters);
     }
 
 }

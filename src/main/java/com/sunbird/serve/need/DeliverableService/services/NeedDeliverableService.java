@@ -3,6 +3,7 @@ package com.sunbird.serve.need;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
+import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,25 @@ public NeedDeliverableResponse getByNeedPlanId(String needPlanId) {
 
         // Save the updated need
         return needDeliverableRepository.save(existingNeedDeliverable);
+    }
+
+    public List<InputParameters> updateInputParameters(String needDeliverableId, DeliverableDetailsRequest request, Map<String, String> headers) {
+        // Check if the need with the given ID exists
+        List<InputParameters> existingInputParameters = inputParametersRepository.findByNeedDeliverableId(needDeliverableId);
+
+        if (existingInputParameters != null) {
+            for (InputParameters parameter : existingInputParameters) {
+                parameter.setNeedDeliverableId(request.getNeedDeliverableId());
+                parameter.setInputUrl(request.getInputUrl());
+                parameter.setSoftwarePlatform(request.getSoftwarePlatform());
+                parameter.setStartTime(request.getStartTime());
+                parameter.setEndTime(request.getEndTime());
+            }
+
+            
+        }
+        // Save the updated need
+            return inputParametersRepository.saveAll(existingInputParameters);
     }
 
 }
