@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.Need.InputParameters;
+import com.sunbird.serve.need.models.Need.OutputParameters;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
+import com.sunbird.serve.need.models.request.OutputParametersRequest;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.http.HttpStatus;
 import java.util.List;
@@ -106,6 +108,19 @@ public class NeedDeliverableController {
 
         List<InputParameters> updatedInputParameters = needDeliverableService.updateInputParameters(needDeliverableId, request, headers);
         return ResponseEntity.ok(updatedInputParameters);
+    }
+
+    //Create Output Parameters for Deliverable Details
+    @Operation(summary = "Create Output Parameters", description = "Create Output Parameters for Deliverable Details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Created Output Parameters", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PostMapping("/deliverable-output/create")
+    public ResponseEntity<OutputParameters> createOutputParameters(@RequestBody OutputParametersRequest request, @RequestHeader Map<String, String> headers) {
+        OutputParameters response = needDeliverableService.createOutputParameters(request, headers);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 }

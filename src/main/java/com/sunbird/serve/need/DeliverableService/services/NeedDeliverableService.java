@@ -2,8 +2,10 @@ package com.sunbird.serve.need;
 
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.Need.InputParameters;
+import com.sunbird.serve.need.models.Need.OutputParameters;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
+import com.sunbird.serve.need.models.request.OutputParametersRequest;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,13 +21,16 @@ public class NeedDeliverableService {
 
     private final NeedDeliverableRepository needDeliverableRepository;
     private final InputParametersRepository inputParametersRepository;
+    private final OutputParametersRepository outputParametersRepository;
 
     @Autowired
     public NeedDeliverableService(
             NeedDeliverableRepository needDeliverableRepository, 
-            InputParametersRepository inputParametersRepository) {
+            InputParametersRepository inputParametersRepository,
+            OutputParametersRepository outputParametersRepository) {
         this.needDeliverableRepository = needDeliverableRepository;
         this.inputParametersRepository = inputParametersRepository;
+        this.outputParametersRepository = outputParametersRepository;
     }
 
    //Fetch need deliverable based on needPlanId
@@ -87,6 +92,17 @@ public NeedDeliverableResponse getByNeedPlanId(String needPlanId) {
         }
         // Save the updated need
             return inputParametersRepository.saveAll(existingInputParameters);
+    }
+
+    public OutputParameters createOutputParameters(OutputParametersRequest outputParametersRequest, Map<String, String> headers) {
+        // Convert Output Parameters Request to Output Parameters entity
+        OutputParameters outputParameters = DeliverableMapper.mapToOutputParameters(outputParametersRequest);
+
+        // Save the outputParameters
+        OutputParameters savedOutputParameters = outputParametersRepository.save(outputParameters);
+
+        // Return the saved Need Deliverable
+        return savedOutputParameters;
     }
 
 }

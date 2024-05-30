@@ -25,7 +25,7 @@ public class OutputParameters {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String deliverableDetailsId;
+    private String needDeliverableId;
     private String numberOfAttendees;
     private String submittedUrl;
     private String remarks;

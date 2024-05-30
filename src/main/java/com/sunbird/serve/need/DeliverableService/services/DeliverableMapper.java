@@ -3,7 +3,9 @@ package com.sunbird.serve.need;
 import com.sunbird.serve.need.models.request.NeedPlanRequest;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
+import com.sunbird.serve.need.models.request.OutputParametersRequest;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
+import com.sunbird.serve.need.models.Need.OutputParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
@@ -35,5 +37,15 @@ public class DeliverableMapper {
         return needDeliverable;
     }
 
+    public static OutputParameters mapToOutputParameters(OutputParametersRequest outputParametersRequest) {
+        // Need request is mapped to the need entity
+        OutputParameters outputParameters = new OutputParameters();
+        outputParameters.setNeedDeliverableId(outputParametersRequest.getNeedDeliverableId());
+        outputParameters.setRemarks(outputParametersRequest.getRemarks());
+        outputParameters.setNumberOfAttendees(outputParametersRequest.getNumberOfAttendees());
+        outputParameters.setSubmittedUrl(outputParametersRequest.getSubmittedUrl());
+
+        return outputParameters;
+    }
 }
 
