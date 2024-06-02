@@ -6,6 +6,7 @@ import com.sunbird.serve.need.models.request.NeedRequest;
 import com.sunbird.serve.need.models.request.NeedRequirementRequest;
 import com.sunbird.serve.need.models.request.OccurrenceRequest;
 import com.sunbird.serve.need.models.request.TimeSlotRequest;
+import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.Need.NeedRequirement;
 import com.sunbird.serve.need.models.Need.Occurrence;
@@ -177,6 +178,18 @@ public class RaiseNeedService {
             // Save the updated time slots
             timeSlotRepository.saveAll(existingTimeSlots);
         }
+
+        // Save the updated need
+        return needRepository.save(existingNeed);
+    }
+
+
+    public Need updateNeedStatus(UUID needId, NeedStatus status, Map<String, String> headers) {
+        // Check if the need with the given ID exists
+        Need existingNeed = needRepository.findById(needId)
+        .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + needId));
+
+        existingNeed.setStatus(status);
 
         // Save the updated need
         return needRepository.save(existingNeed);
