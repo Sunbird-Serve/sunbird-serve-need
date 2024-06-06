@@ -3,6 +3,9 @@ package com.sunbird.serve.need;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.Need.OutputParameters;
+import com.sunbird.serve.need.models.Need.Need;
+import com.sunbird.serve.need.models.Need.NeedPlan;
+import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
 import com.sunbird.serve.need.models.request.OutputParametersRequest;
@@ -14,6 +17,8 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Service
@@ -22,15 +27,22 @@ public class NeedDeliverableService {
     private final NeedDeliverableRepository needDeliverableRepository;
     private final InputParametersRepository inputParametersRepository;
     private final OutputParametersRepository outputParametersRepository;
+    private final NeedRepository needRepository;
+    private final NeedPlanRepository needPlanRepository;
+    private static final Logger logger = LoggerFactory.getLogger(NeedDeliverableService.class);
 
     @Autowired
     public NeedDeliverableService(
             NeedDeliverableRepository needDeliverableRepository, 
             InputParametersRepository inputParametersRepository,
-            OutputParametersRepository outputParametersRepository) {
+            OutputParametersRepository outputParametersRepository, 
+            NeedRepository needRepository,
+            NeedPlanRepository needPlanRepository) {
         this.needDeliverableRepository = needDeliverableRepository;
         this.inputParametersRepository = inputParametersRepository;
         this.outputParametersRepository = outputParametersRepository;
+        this.needRepository = needRepository;
+        this.needPlanRepository = needPlanRepository;
     }
 
    //Fetch need deliverable based on needPlanId
@@ -71,8 +83,31 @@ public NeedDeliverableResponse getByNeedPlanId(String needPlanId) {
         existingNeedDeliverable.setStatus(request.getStatus());
         existingNeedDeliverable.setDeliverableDate(request.getDeliverableDate());
 
-        // Save the updated need
-        return needDeliverableRepository.save(existingNeedDeliverable);
+        // Save the updated need deliverable
+        NeedDeliverable updatedNeedDeliverable = needDeliverableRepository.save(existingNeedDeliverable);
+
+        // Fetch all need deliverables for the given need plan ID
+        List<NeedDeliverable> needDeliverables = needDeliverableRepository.findByNeedPlanId(request.getNeedPlanId());
+
+        // Check if any of the need deliverable statuses is "Not Started"
+        boolean allNotStarted = needDeliverables.stream().anyMatch(nd -> nd.getStatus().toString().trim().equalsIgnoreCase("NotStarted"));
+        
+        // If none of the statuses are "Not Started", update the need status as "Fulfilled"
+        if (!allNotStarted) {
+          
+            NeedPlan needPlan = needPlanRepository.findById(UUID.fromString(request.getNeedPlanId()))
+                .orElseThrow(() -> new NoSuchElementException("Need Plan not found with ID: " + request.getNeedPlanId()));
+        
+            // Fetch the Need using the NeedId from the NeedPlan
+            Need need = needRepository.findById(UUID.fromString(needPlan.getNeedId()))
+                .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + needPlan.getNeedId()));
+        
+            // Update the Need status to "Fulfilled"
+            need.setStatus(NeedStatus.Fulfilled);
+            needRepository.save(need);
+        }
+
+    return updatedNeedDeliverable;
     }
 
     public List<InputParameters> updateInputParameters(String needDeliverableId, DeliverableDetailsRequest request, Map<String, String> headers) {
