@@ -110,6 +110,23 @@ public class NeedDeliverableController {
         return ResponseEntity.ok(updatedInputParameters);
     }
 
+    //Update Need Deliverable Details
+    @Operation(summary = "Update all Need Deliverables with appropritate values", description = "Update all need deliverable details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Updated all Need Deliverable Details", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+     @PutMapping("/all-deliverable-details/update/{needPlanId}")
+    public ResponseEntity<List<NeedDeliverable>> updateNeedDeliverableDetails(
+            @PathVariable String needPlanId,
+            @RequestBody DeliverableDetailsRequest request,
+            @RequestHeader Map<String, String> headers) {
+
+        List<NeedDeliverable> updatedNeedDeliverables = needDeliverableService.updateNeedDeliverables(needPlanId, request, headers);
+        return ResponseEntity.ok(updatedNeedDeliverables);
+    }
+
     //Create Output Parameters for Deliverable Details
     @Operation(summary = "Create Output Parameters", description = "Create Output Parameters for Deliverable Details")
     @ApiResponses(value = {

@@ -16,7 +16,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeliverableDetailsRequest {
-   private String needDeliverableId;
    private String inputUrl;
    private SoftwarePlatform softwarePlatform;
    private Instant startTime;

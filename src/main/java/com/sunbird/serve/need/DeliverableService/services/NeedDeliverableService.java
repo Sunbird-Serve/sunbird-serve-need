@@ -110,13 +110,40 @@ public NeedDeliverableResponse getByNeedPlanId(String needPlanId) {
     return updatedNeedDeliverable;
     }
 
+
+   public List<NeedDeliverable> updateNeedDeliverables(String needPlanId, DeliverableDetailsRequest request, Map<String, String> headers) {
+    // Fetch all deliverables based on needPlanId
+    List<NeedDeliverable> needDeliverableList = needDeliverableRepository.findByNeedPlanId(needPlanId);
+
+        List<NeedDeliverable> updatedDeliverables = new ArrayList<>();
+
+        for (NeedDeliverable needDeliverables : needDeliverableList) {
+            // new request object with details from the need deliverable
+            DeliverableDetailsRequest newRequest = DeliverableDetailsRequest.builder()
+                    .inputUrl(request.getInputUrl())
+                    .softwarePlatform(request.getSoftwarePlatform())
+                    .startTime(request.getStartTime())
+                    .endTime(request.getEndTime())
+                    .build();
+
+            // Call updateInputParameters method for each deliverable
+            List<InputParameters> updatedInputParameters = updateInputParameters(needDeliverables.getId().toString(), newRequest, headers);
+
+            // Assuming updateInputParameters updates the needDeliverable and saves it
+            updatedDeliverables.add(needDeliverables);
+        }
+        return updatedDeliverables;
+}
+
+
+
     public List<InputParameters> updateInputParameters(String needDeliverableId, DeliverableDetailsRequest request, Map<String, String> headers) {
         // Check if the need with the given ID exists
         List<InputParameters> existingInputParameters = inputParametersRepository.findByNeedDeliverableId(needDeliverableId);
 
         if (existingInputParameters != null) {
             for (InputParameters parameter : existingInputParameters) {
-                parameter.setNeedDeliverableId(request.getNeedDeliverableId());
+                parameter.setNeedDeliverableId(needDeliverableId);
                 parameter.setInputUrl(request.getInputUrl());
                 parameter.setSoftwarePlatform(request.getSoftwarePlatform());
                 parameter.setStartTime(request.getStartTime());
