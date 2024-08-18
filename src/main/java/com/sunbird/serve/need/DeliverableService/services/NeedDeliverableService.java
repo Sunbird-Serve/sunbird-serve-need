@@ -6,6 +6,7 @@ import com.sunbird.serve.need.models.Need.OutputParameters;
 import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
 import com.sunbird.serve.need.models.request.OutputParametersRequest;
@@ -20,6 +21,11 @@ import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.web.reactive.function.client.WebClient;
+
 
 @Service
 public class NeedDeliverableService {
@@ -29,6 +35,8 @@ public class NeedDeliverableService {
     private final OutputParametersRepository outputParametersRepository;
     private final NeedRepository needRepository;
     private final NeedPlanRepository needPlanRepository;
+    @Autowired
+    private WebClient.Builder webClientBuilder;
     private static final Logger logger = LoggerFactory.getLogger(NeedDeliverableService.class);
 
     @Autowired
@@ -83,6 +91,39 @@ public NeedDeliverableResponse getByNeedPlanId(String needPlanId) {
         existingNeedDeliverable.setStatus(request.getStatus());
         existingNeedDeliverable.setDeliverableDate(request.getDeliverableDate());
 
+        //email notification for cancelled sessions
+        if(request.getStatus() == NeedDeliverableStatus.Cancelled){
+            NeedPlan needPlan = needPlanRepository.findById(UUID.fromString(request.getNeedPlanId()))
+                .orElseThrow(() -> new NoSuchElementException("Need Plan not found with ID: " + request.getNeedPlanId()));
+             // Fetch the Need using the NeedId from the NeedPlan
+            Need need = needRepository.findById(UUID.fromString(needPlan.getNeedId()))
+                .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + needPlan.getNeedId()));
+            // Construct the API URL
+        String apiUrl = "http://serve-v1.evean.net/api/v1/serve-fulfill/fulfillment/sendEmail";
+
+        // Prepare the request body with the necessary details
+        Map<String, Object> apiRequestBody = new HashMap<>();
+        apiRequestBody.put("scenarioType", "CancelSession");
+        apiRequestBody.put("needId", need.getId());
+        apiRequestBody.put("deliverableDetails", existingNeedDeliverable);
+
+        // Make the API call
+        webClientBuilder.build()
+            .post()
+            .uri(apiUrl)
+            .bodyValue(apiRequestBody)
+            .retrieve()
+            .bodyToMono(String.class)
+            .doOnSuccess(response -> {
+            
+            })
+            .doOnError(e -> {
+                // Handle errors during the API call
+                throw new RuntimeException("Error occurred while calling the fulfill microservice: " + e.getMessage(), e);
+            })
+            .block();  // Block if you want to make this a synchronous call
+        }
+       
         // Save the updated need deliverable
         NeedDeliverable updatedNeedDeliverable = needDeliverableRepository.save(existingNeedDeliverable);
 
