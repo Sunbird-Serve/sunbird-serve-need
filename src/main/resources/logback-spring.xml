@@ -4,11 +4,11 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Rotate daily -->
             <fileNamePattern>needLog.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- Keep 30 days worth of history -->
+            <!-- Keep 15 days worth of history -->
             <maxHistory>15</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d [%level] %c{1.} [%t] %m%n</pattern>
+            <pattern>%d [%level] %c{1} [%t] %m%n</pattern>
         </encoder>
     </appender>
 
