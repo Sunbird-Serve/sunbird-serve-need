@@ -2,19 +2,20 @@ package com.sunbird.serve.need;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.sunbird.serve.need.models.Need.NeedType;
 import com.sunbird.serve.need.models.enums.NeedTypeStatus;
 
 import java.util.Optional;
 import java.util.UUID;
-
-import java.util.List;
-
 import org.springframework.data.domain.Page; 
 import org.springframework.data.domain.Pageable;
 
 @Service
 public class NeedTypeDiscoveryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(NeedTypeDiscoveryService.class);
 
     private final NeedTypeDiscoveryRepository needTypeDiscoveryRepository;
 
@@ -23,33 +24,43 @@ public class NeedTypeDiscoveryService {
         this.needTypeDiscoveryRepository = needTypeDiscoveryRepository;
     }
 
-    //Fetch all the needs 
+    // Fetch all the need types
     public Page<NeedType> getAllNeedType(Pageable pageable) {
-        return needTypeDiscoveryRepository.findAll(pageable);
+        try {
+            return needTypeDiscoveryRepository.findAll(pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching all NeedTypes", e);
+            throw new RuntimeException("Error fetching all NeedTypes", e);
+        }
     }
 
-    //Fetch needs based on needId
+    // Fetch need type based on needTypeId
     public Optional<NeedType> getNeedTypeById(UUID needTypeId) {
-        return needTypeDiscoveryRepository.findById(needTypeId);
+        try {
+            return needTypeDiscoveryRepository.findById(needTypeId);
+        } catch (Exception e) {
+            logger.error("Error fetching NeedType by ID: {}", needTypeId, e);
+            throw new RuntimeException("Error fetching NeedType by ID", e);
+        }
     }
 
-    //Fetch need by status
-     public Page<NeedType> getNeedTypeByStatus(NeedTypeStatus status, Pageable pageable) {
-        return needTypeDiscoveryRepository.findAllNeedTypeByStatus(status, pageable);
+    // Fetch need types based on status
+    public Page<NeedType> getNeedTypeByStatus(NeedTypeStatus status, Pageable pageable) {
+        try {
+            return needTypeDiscoveryRepository.findAllNeedTypeByStatus(status, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching NeedTypes by Status: {}", status, e);
+            throw new RuntimeException("Error fetching NeedTypes by Status", e);
+        }
     }
 
-    //Fetch needs based on needTypeId
-    /*public Page<NeedType> findAllByNeedTypeId(String needTypeId, Pageable pageable) {
-        return needDiscoveryRepository.findAllByNeedTypeId(needTypeId, pageable);
-    }*/
-
-    //Fetch needs based on userId
+    // Fetch need types based on userId
     public Page<NeedType> getNeedTypeByUserId(String userId, Pageable pageable) {
-        return needTypeDiscoveryRepository.findNeedTypeByUserId(userId, pageable);
+        try {
+            return needTypeDiscoveryRepository.findNeedTypeByUserId(userId, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching NeedTypes by UserId: {}", userId, e);
+            throw new RuntimeException("Error fetching NeedTypes by UserId", e);
+        }
     }
-
-    //Fetch needs based on userId
-    /*public Page<NeedType> findAllByUserIdAndNeedTypeId(String userId, String needTypeId, Pageable pageable) {
-        return needDiscoveryRepository.findAllByUserIdAndNeedTypeId(userId, needTypeId, pageable);
-    }*/
 }
