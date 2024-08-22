@@ -1,6 +1,7 @@
 package com.sunbird.serve.need;
 
 import com.sunbird.serve.need.models.Need.Need;
+import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

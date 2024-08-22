@@ -1,8 +1,9 @@
 package com.sunbird.serve.need.models.Need;
 
-import com.sunbird.serve.need.models.enums.NeedStatus;
-import jakarta.persistence.*;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,18 +19,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class NeedPlan {
+public class OutputParameters {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String needId;
-    private String name;
 
-    @Enumerated(EnumType.STRING)
-    private NeedStatus status;
-
-    private String occurrenceId;
+    private String needDeliverableId;
+    private String numberOfAttendees;
+    private String submittedUrl;
+    private String remarks;
 
     @CreationTimestamp
     private Instant createdAt;

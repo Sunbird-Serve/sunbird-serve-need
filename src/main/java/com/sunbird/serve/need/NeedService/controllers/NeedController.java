@@ -4,7 +4,7 @@ import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.request.RaiseNeedRequest;
 import com.sunbird.serve.need.models.request.NeedRequest;
 import com.sunbird.serve.need.models.response.NeedResult;
-
+import com.sunbird.serve.need.models.enums.NeedStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +55,27 @@ public class NeedController {
      @PutMapping("/need/update/{needId}")
     public ResponseEntity<Need> updateNeed(
             @PathVariable UUID needId,
-            @RequestBody NeedRequest request,
+            @RequestBody RaiseNeedRequest request,
             @RequestHeader Map<String, String> headers) {
 
         Need updatedNeed = raiseNeedService.updateNeed(needId, request, headers);
+        return ResponseEntity.ok(updatedNeed);
+    }
+
+    //Update Need Status
+    @Operation(summary = "Update a Need Status", description = "Update need status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Updated Need Status", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+     @PutMapping("/need/status/{needId}")
+    public ResponseEntity<Need> updateNeedStatus(
+            @PathVariable UUID needId,
+            @RequestParam(required = true) NeedStatus status,
+            @RequestHeader Map<String, String> headers) {
+
+        Need updatedNeed = raiseNeedService.updateNeedStatus(needId, status, headers);
         return ResponseEntity.ok(updatedNeed);
     }
 

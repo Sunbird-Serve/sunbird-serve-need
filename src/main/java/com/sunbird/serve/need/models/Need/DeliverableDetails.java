@@ -1,6 +1,7 @@
 package com.sunbird.serve.need.models.Need;
 
-import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
+import com.sunbird.serve.need.models.enums.TaskType;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Builder
@@ -18,18 +20,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class NeedPlan {
+public class DeliverableDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String needId;
-    private String name;
 
     @Enumerated(EnumType.STRING)
-    private NeedStatus status;
+    private TaskType taskType;
 
-    private String occurrenceId;
+    private String needDeliverableId;
 
     @CreationTimestamp
     private Instant createdAt;
