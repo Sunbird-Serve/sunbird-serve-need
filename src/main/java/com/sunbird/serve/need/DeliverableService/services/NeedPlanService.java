@@ -131,7 +131,7 @@ public class NeedPlanService {
                         NeedDeliverable needDeliverable = NeedDeliverable.builder()
                                 .needPlanId(needPlan.getId().toString())
                                 .deliverableDate(date)
-                                .status(NeedDeliverableStatus.NotStarted)
+                                .status(NeedDeliverableStatus.Planned)
                                 .build();
                         needDeliverable = needDeliverableRepository.save(needDeliverable);
 
