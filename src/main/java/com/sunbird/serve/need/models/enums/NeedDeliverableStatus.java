@@ -2,7 +2,7 @@ package com.sunbird.serve.need.models.enums;
 
 public enum NeedDeliverableStatus {
     NotStarted,
-    Scheduled,
+    Planned,
     InProgress,
     Completed,
     Cancelled

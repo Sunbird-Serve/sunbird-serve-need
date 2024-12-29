@@ -127,7 +127,7 @@ public class NeedDeliverableService {
             List<NeedDeliverable> needDeliverables = needDeliverableRepository.findByNeedPlanId(request.getNeedPlanId());
 
             // Check if any of the need deliverable statuses is "Not Started"
-            boolean allNotStarted = needDeliverables.stream().anyMatch(nd -> nd.getStatus().toString().trim().equalsIgnoreCase("NotStarted"));
+            boolean allNotStarted = needDeliverables.stream().anyMatch(nd -> nd.getStatus().toString().trim().equalsIgnoreCase("Planned"));
             
             // If none of the statuses are "Not Started", update the need status as "Fulfilled"
             if (!allNotStarted) {
