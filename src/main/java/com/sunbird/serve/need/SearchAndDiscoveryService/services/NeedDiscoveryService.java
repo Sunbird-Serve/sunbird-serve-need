@@ -139,6 +139,11 @@ public class NeedDiscoveryService {
         }
     }
 
+public Page<Need> getNeedByEntityIds(List<String> entityIds, Pageable pageable) {
+    // Logic to fetch needs based on multiple entityIds
+    return needDiscoveryRepository.findAllByEntityIds(entityIds, pageable);
+}
+
     // Fetch needs based on userId and status
     public Page<Need> getNeedByUserIdAndStatus(String userId, NeedStatus status, Pageable pageable) {
         try {

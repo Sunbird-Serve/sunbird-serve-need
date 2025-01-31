@@ -26,6 +26,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import java.util.ArrayList;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,6 +159,24 @@ public ResponseEntity<Page<Need>> getAllNeeds(
     
         return ResponseEntity.ok(needs);
 }
+
+
+@PostMapping("/need/entities")
+public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
+    @RequestBody List<String> entityIds,
+    @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+    @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Need> needs;
+
+    // Fetch needs based on the list of entityIds
+    needs = needDiscoveryService.getNeedByEntityIds(entityIds, pageable);
+
+    return ResponseEntity.ok(needs);
+}
+
+
 
 
 }
