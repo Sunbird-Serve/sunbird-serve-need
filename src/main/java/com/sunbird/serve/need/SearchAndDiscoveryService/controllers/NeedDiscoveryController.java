@@ -58,23 +58,7 @@ public class NeedDiscoveryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //Fetch all entities
-    @Operation(summary = "Fetch all entities", description = "Fetch all entities")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully Fetched Entities", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
-            @ApiResponse(responseCode = "400", description = "Bad Input"),
-            @ApiResponse(responseCode = "500", description = "Server Error")}
-    )
-    @GetMapping("/entity/")
-    public ResponseEntity<Page<Entity>> getAllEntity(
-         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
-            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
-            @RequestParam EntityStatus status)
-    {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Entity> allEntity = needDiscoveryService.getAllEntity(status, pageable);
-        return ResponseEntity.ok(allEntity);
-    }
+   
 
     //Fetch all needs based on its status
     @Operation(summary = "Fetch Needs based on Status", description = "Fetch need details based on its status")
