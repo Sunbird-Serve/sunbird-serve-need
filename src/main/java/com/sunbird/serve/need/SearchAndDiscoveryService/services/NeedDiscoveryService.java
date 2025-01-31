@@ -129,6 +129,16 @@ public class NeedDiscoveryService {
         }
     }
 
+// Fetch needs based on userId
+    public Page<Need> getNeedByEntityId(String entityId, Pageable pageable) {
+        try {
+            return needDiscoveryRepository.findAllByEntityId(entityId, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching Needs by entityId: {}", entityId, e);
+            throw new RuntimeException("Error fetching Needs by entityId", e);
+        }
+    }
+
     // Fetch needs based on userId and status
     public Page<Need> getNeedByUserIdAndStatus(String userId, NeedStatus status, Pageable pageable) {
         try {

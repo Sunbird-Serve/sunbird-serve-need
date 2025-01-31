@@ -126,5 +126,28 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         return ResponseEntity.ok(needs);
 }
 
+//Fetch all need by providing Entity Id
+        @Operation(summary = "Fetch all Needs by providing Entity Id ", description = "Fetch a Need by providing Entity Id")
+        @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully Fetched Need", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+        @ApiResponse(responseCode = "400", description = "Bad Input"),
+        @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/need/entity/{entityId}")
+    public ResponseEntity<Page<Need>> getAllNeedsByEntityId(
+        @PathVariable(required = true) @Parameter(description = "Entity ID") String entityId,
+        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Need> needs;
+
+
+        // Fetch needs based on userId
+        needs = needDiscoveryService.getNeedByEntityId(entityId, pageable);
+    
+        return ResponseEntity.ok(needs);
+}
+
 
 }

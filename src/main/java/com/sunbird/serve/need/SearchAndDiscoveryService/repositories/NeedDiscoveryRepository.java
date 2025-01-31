@@ -27,6 +27,8 @@ public interface NeedDiscoveryRepository extends JpaRepository<Need, UUID> {
 
     Page<Need> findAllByUserId(String userId, Pageable pageable);
 
+    Page<Need> findAllByEntityId(String entityId, Pageable pageable);
+
     Page<Need> findAllByUserIdAndStatus(String userId, NeedStatus status, Pageable pageable);
 
     Page<Need> findAllByUserIdAndNeedTypeId(String userId, String needTypeId, Pageable pageable);
