@@ -10,6 +10,7 @@ import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
 import com.sunbird.serve.need.models.Need.NeedRequirement;
 
+
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
@@ -47,15 +48,15 @@ public class EntityDiscoveryService {
         }
     }
 
-      // Fetch entity id based on needAdminId
-    public Page<EntityMapping> getEntityByNeedAdminId(String needAdminId, Pageable pageable) {
-        try {
-            return entityMappingRepository.findAllByNeedAdminId(needAdminId, pageable);
-        } catch (Exception e) {
-            logger.error("Error fetching EntityMapping by NeedAdminId: {}", needAdminId, e);
-            throw new RuntimeException("Error fetching EntityMapping by needAdminId", e);
-        }
+    
+    public Page<Entity> getEntitiesByNeedAdminId(String needAdminId, Pageable pageable) {
+    try {
+        return entitySearchRepository.findEntitiesByNeedAdminId(needAdminId, pageable);
+    } catch (Exception e) {
+        logger.error("Error fetching Entities by NeedAdminId: {}", needAdminId, e);
+        throw new RuntimeException("Error fetching Entities by NeedAdminId", e);
     }
+}
 
    
 }

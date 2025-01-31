@@ -82,26 +82,26 @@ public class EntityDiscoveryController {
     }
 
 
-//Fetch all entity ID by providing Need Admin ID
+//Fetch entity details by providing Need Admin ID
     @Operation(summary = "Fetch all Entity Id by providing Need Admin Id ", description = "Fetch all Entity Id by providing Need Admin Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully Fetched Entity Id", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/entity-mapping/{needAdminId}")
-public ResponseEntity<Page<EntityMapping>> getAllEntityId(
+    @GetMapping("/entityDetails/{needAdminId}")
+public ResponseEntity<Page<Entity>> getAllEntityDetails(
         @PathVariable(required = true) @Parameter(description = "Need Admin ID") String needAdminId,
             @RequestParam(required = false, defaultValue = "0")  Integer page,
             @RequestParam(required = false, defaultValue = "10")  Integer size) {
 
     Pageable pageable = PageRequest.of(page, size);
-    Page<EntityMapping> entityMapping;
+    Page<Entity> entity;
 
     // Fetch entity id based on needAdminId
-        entityMapping = entityDiscoveryService.getEntityByNeedAdminId(needAdminId, pageable);
+        entity = entityDiscoveryService.getEntitiesByNeedAdminId(needAdminId, pageable);
 
-    return ResponseEntity.ok(entityMapping);
+    return ResponseEntity.ok(entity);
 }
 
 }

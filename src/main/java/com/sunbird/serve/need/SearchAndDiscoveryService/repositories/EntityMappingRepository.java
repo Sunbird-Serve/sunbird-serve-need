@@ -18,4 +18,6 @@ import java.util.Optional;
 public interface EntityMappingRepository extends JpaRepository<EntityMapping, UUID> {
 
     Page<EntityMapping> findAllByNeedAdminId(String needAdminId, Pageable pageable);
+
+    
 }
