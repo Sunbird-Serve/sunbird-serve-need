@@ -10,6 +10,7 @@ import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
+import com.sunbird.serve.need.models.request.EntityListRequest;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -160,25 +161,28 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         return ResponseEntity.ok(needs);
 }
 
-
-  @Operation(summary = "Fetch all Needs by providing list of entities ", description = "Fetch a Need by providing Entity Id")
-        @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully Fetched Need", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+@Operation(summary = "Fetch Needs by Entity Ids", description = "Fetch Needs based on list of Entity Ids")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully Fetched Needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
         @ApiResponse(responseCode = "400", description = "Bad Input"),
-        @ApiResponse(responseCode = "500", description = "Server Error")}
-    )
+        @ApiResponse(responseCode = "500", description = "Server Error")})
 @PostMapping("/need/entities")
 public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
-    @RequestBody List<String> entityIds,
-    @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
-    @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
+        @RequestBody EntityListRequest entityIdsRequest, // Using the new request class
+        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
 
+    // Extract entityIds from the request body
+    List<String> entityIds = entityIdsRequest.getEntityIds();
+
+    // Log received entityIds
     logger.info("Received entityIds: {}", entityIds);
+
+    // Pageable for pagination
     Pageable pageable = PageRequest.of(page, size);
-    Page<Need> needs;
 
     // Fetch needs based on the list of entityIds
-    needs = needDiscoveryService.getNeedByEntityIds(entityIds, pageable);
+    Page<Need> needs = needDiscoveryService.getNeedByEntityIds(entityIds, pageable);
 
     return ResponseEntity.ok(needs);
 }
