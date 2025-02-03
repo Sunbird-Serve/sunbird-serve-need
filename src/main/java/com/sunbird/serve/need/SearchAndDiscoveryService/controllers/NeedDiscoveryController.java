@@ -167,6 +167,7 @@ public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
     @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
     @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
 
+    logger.info("Received entityIds: {}", entityIds);
     Pageable pageable = PageRequest.of(page, size);
     Page<Need> needs;
 
