@@ -161,6 +161,12 @@ public ResponseEntity<Page<Need>> getAllNeeds(
 }
 
 
+  @Operation(summary = "Fetch all Needs by providing list of entities ", description = "Fetch a Need by providing Entity Id")
+        @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully Fetched Need", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+        @ApiResponse(responseCode = "400", description = "Bad Input"),
+        @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
 @PostMapping("/need/entities")
 public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
     @RequestBody List<String> entityIds,
