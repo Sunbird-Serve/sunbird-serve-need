@@ -104,4 +104,22 @@ public ResponseEntity<Page<Entity>> getAllEntityDetails(
     return ResponseEntity.ok(entity);
 }
 
+// Fetch all needs based on needAdminId
+    @Operation(summary = "Fetch all needs by Need Admin ID", description = "Fetch all needs by Need Admin ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully fetched needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/needs/{needAdminId}")
+    public ResponseEntity<Page<Need>> getAllNeedsByNeedAdminId(
+            @PathVariable @Parameter(description = "Need Admin ID") String needAdminId,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Need> needs = entityDiscoveryService.getNeedsByNeedAdminId(needAdminId, pageable);
+        return ResponseEntity.ok(needs);
+    }
+
 }

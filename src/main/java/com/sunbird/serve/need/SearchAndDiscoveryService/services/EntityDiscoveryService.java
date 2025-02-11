@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.List;
 import org.springframework.data.domain.Page; 
 import org.springframework.data.domain.Pageable;
+import java.util.stream.Collectors;
 
 @Service
 public class EntityDiscoveryService {
@@ -24,13 +25,16 @@ public class EntityDiscoveryService {
 
     private final EntitySearchRepository entitySearchRepository;
     private final EntityMappingRepository entityMappingRepository;
+    private final NeedDiscoveryRepository needDiscoveryRepository;
 
     @Autowired
     public EntityDiscoveryService(
             EntityMappingRepository entityMappingRepository,
-            EntitySearchRepository entitySearchRepository) {
+            EntitySearchRepository entitySearchRepository,
+            NeedDiscoveryRepository needDiscoveryRepository) {
         this.entityMappingRepository = entityMappingRepository;
         this.entitySearchRepository = entitySearchRepository;
+        this.needDiscoveryRepository = needDiscoveryRepository;
     }
 
     // Fetch all the entities 
@@ -57,6 +61,26 @@ public class EntityDiscoveryService {
         throw new RuntimeException("Error fetching Entities by NeedAdminId", e);
     }
 }
+
+// Fetch all needs based on Need Admin ID
+    public Page<Need> getNeedsByNeedAdminId(String needAdminId, Pageable pageable) {
+        try {
+            // Fetch entities associated with the needAdminId
+            List<Entity> entities = entitySearchRepository.findEntitiesByNeedAdminId(needAdminId, pageable).getContent();
+            
+            // Extract entity IDs
+            List<String> entityIds = entities.stream()
+    .map(entity -> entity.getId().toString()) // Convert UUID to String
+    .collect(Collectors.toList());
+
+            
+            // Fetch needs associated with the retrieved entity IDs
+            return needDiscoveryRepository.findAllByEntityIds(entityIds, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching Needs by NeedAdminId: {}", needAdminId, e);
+            throw new RuntimeException("Error fetching Needs by NeedAdminId", e);
+        }
+    }
 
    
 }
