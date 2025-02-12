@@ -129,6 +129,21 @@ public class NeedDiscoveryService {
         }
     }
 
+// Fetch needs based on userId
+    public Page<Need> getNeedByEntityId(String entityId, Pageable pageable) {
+        try {
+            return needDiscoveryRepository.findAllByEntityId(entityId, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching Needs by entityId: {}", entityId, e);
+            throw new RuntimeException("Error fetching Needs by entityId", e);
+        }
+    }
+
+public Page<Need> getNeedByEntityIds(List<String> entityIds, Pageable pageable) {
+    // Logic to fetch needs based on multiple entityIds
+    return needDiscoveryRepository.findAllByEntityIds(entityIds, pageable);
+}
+
     // Fetch needs based on userId and status
     public Page<Need> getNeedByUserIdAndStatus(String userId, NeedStatus status, Pageable pageable) {
         try {

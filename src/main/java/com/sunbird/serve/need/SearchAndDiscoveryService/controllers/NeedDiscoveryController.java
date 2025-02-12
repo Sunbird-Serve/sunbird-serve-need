@@ -10,6 +10,7 @@ import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
+import com.sunbird.serve.need.models.request.EntityListRequest;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -25,6 +26,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import java.util.ArrayList;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,23 +70,7 @@ public class NeedDiscoveryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //Fetch all entities
-    @Operation(summary = "Fetch all entities", description = "Fetch all entities")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully Fetched Entities", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
-            @ApiResponse(responseCode = "400", description = "Bad Input"),
-            @ApiResponse(responseCode = "500", description = "Server Error")}
-    )
-    @GetMapping("/entity/")
-    public ResponseEntity<Page<Entity>> getAllEntity(
-         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
-            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
-            @RequestParam EntityStatus status)
-    {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Entity> allEntity = needDiscoveryService.getAllEntity(status, pageable);
-        return ResponseEntity.ok(allEntity);
-    }
+   
 
     //Fetch all needs based on its status
     @Operation(summary = "Fetch Needs based on Status", description = "Fetch need details based on its status")
@@ -141,6 +137,57 @@ public ResponseEntity<Page<Need>> getAllNeeds(
     
         return ResponseEntity.ok(needs);
 }
+
+//Fetch all need by providing Entity Id
+        @Operation(summary = "Fetch all Needs by providing Entity Id ", description = "Fetch a Need by providing Entity Id")
+        @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully Fetched Need", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+        @ApiResponse(responseCode = "400", description = "Bad Input"),
+        @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/need/entity/{entityId}")
+    public ResponseEntity<Page<Need>> getAllNeedsByEntityId(
+        @PathVariable(required = true) @Parameter(description = "Entity ID") String entityId,
+        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Need> needs;
+
+
+        // Fetch needs based on userId
+        needs = needDiscoveryService.getNeedByEntityId(entityId, pageable);
+    
+        return ResponseEntity.ok(needs);
+}
+
+@Operation(summary = "Fetch Needs by Entity Ids", description = "Fetch Needs based on list of Entity Ids")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully Fetched Needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+        @ApiResponse(responseCode = "400", description = "Bad Input"),
+        @ApiResponse(responseCode = "500", description = "Server Error")})
+@PostMapping("/need/entities")
+public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
+        @RequestBody EntityListRequest entityIdsRequest, // Using the new request class
+        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
+
+    // Extract entityIds from the request body
+    List<String> entityIds = entityIdsRequest.getEntityIds();
+
+    // Log received entityIds
+    logger.info("Received entityIds: {}", entityIds);
+
+    // Pageable for pagination
+    Pageable pageable = PageRequest.of(page, size);
+
+    // Fetch needs based on the list of entityIds
+    Page<Need> needs = needDiscoveryService.getNeedByEntityIds(entityIds, pageable);
+
+    return ResponseEntity.ok(needs);
+}
+
+
 
 
 }
