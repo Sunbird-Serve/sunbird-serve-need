@@ -22,6 +22,9 @@ public interface EntitySearchRepository extends JpaRepository<Entity, UUID> {
 
     Page<Entity> findAllByStatus(EntityStatus status, Pageable pageable);
 
+    // Fetch all entities with pagination
+    Page<Entity> findAll(Pageable pageable);
+
 
     @Query("SELECT e FROM Entity e WHERE e.id IN (SELECT em.entityId FROM EntityMapping em WHERE em.needAdminId = :needAdminId)")
     Page<Entity> findEntitiesByNeedAdminId(@Param("needAdminId") String needAdminId, Pageable pageable);

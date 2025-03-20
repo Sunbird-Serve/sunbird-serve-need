@@ -65,6 +65,17 @@ public class EntityDiscoveryController {
         return ResponseEntity.ok(allEntity);
     }
 
+    @GetMapping("/entity/all")
+public ResponseEntity<Page<Entity>> getAllEntities(
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size) 
+{
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Entity> allEntities = entityDiscoveryService.getAllEntities(pageable);
+    return ResponseEntity.ok(allEntities);
+}
+
+
     //Fetch entity by ID
     @Operation(summary = "Fetch entity by ID", description = "Fetch entity by ID")
     @ApiResponses(value = {

@@ -42,6 +42,11 @@ public class EntityDiscoveryService {
         return entitySearchRepository.findAllByStatus(status, pageable);
     }
 
+    // Fetch all the entities 
+    public Page<Entity> getAllEntities(Pageable pageable) {
+        return entitySearchRepository.findAll(pageable);
+    }
+
      // Fetch entity based on entityId
     public Optional<Entity> getEntityById(UUID entityId) {
         try {
