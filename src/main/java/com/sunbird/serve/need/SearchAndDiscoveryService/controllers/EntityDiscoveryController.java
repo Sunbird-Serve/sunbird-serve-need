@@ -7,16 +7,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.Need.Entity;
+import com.sunbird.serve.need.models.request.EntityRequest;
 import com.sunbird.serve.need.models.Need.EntityMapping;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -114,6 +118,19 @@ public ResponseEntity<Page<Entity>> getAllEntityDetails(
 
     return ResponseEntity.ok(entity);
 }
+
+  //Create Entity
+    @Operation(summary = "Create an Entity", description = "Initiate the process of creating a new Entity")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Created Entity", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PostMapping("/entity/create")
+    public ResponseEntity<Entity> createEntity(@RequestBody EntityRequest request, @RequestHeader Map<String, String> headers) {
+        Entity response = entityDiscoveryService.createEntity(request, headers);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
 // Fetch all needs based on needAdminId
     @Operation(summary = "Fetch all needs by Need Admin ID", description = "Fetch all needs by Need Admin ID")

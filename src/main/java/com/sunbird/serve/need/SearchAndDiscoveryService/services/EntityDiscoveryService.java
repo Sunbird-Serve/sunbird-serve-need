@@ -7,16 +7,21 @@ import org.slf4j.LoggerFactory;
 import com.sunbird.serve.need.models.Need.*;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
+import com.sunbird.serve.need.models.request.EntityRequest;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
 import com.sunbird.serve.need.models.Need.NeedRequirement;
-
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page; 
 import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import java.time.LocalDateTime;
+
 
 @Service
 public class EntityDiscoveryService {
@@ -87,5 +92,23 @@ public class EntityDiscoveryService {
         }
     }
 
+    public Entity createEntity(EntityRequest request, Map<String, String> headers) {
+        // Convert EntityRequest to Entity
+        Entity entity = new Entity();
+        entity.setName(request.getName());
+        entity.setWebsite(request.getWebsite());
+        entity.setAddress_line1(request.getAddress_line1());
+        entity.setMobile(request.getMobile());
+        entity.setDistrict(request.getDistrict());
+        entity.setState(request.getState());
+        entity.setCategory(request.getCategory());
+        entity.setStatus(request.getStatus());
+       
+        
+        // Additional logic for processing headers if needed
+        
+        // Save entity to repository
+        return entitySearchRepository.save(entity);
+    }
    
 }
