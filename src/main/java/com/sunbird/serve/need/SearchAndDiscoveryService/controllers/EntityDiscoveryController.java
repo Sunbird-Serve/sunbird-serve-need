@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.request.EntityRequest;
+import com.sunbird.serve.need.models.request.EntityMappingRequest;
 import com.sunbird.serve.need.models.Need.EntityMapping;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
@@ -130,6 +131,45 @@ public ResponseEntity<Page<Entity>> getAllEntityDetails(
     public ResponseEntity<Entity> createEntity(@RequestBody EntityRequest request, @RequestHeader Map<String, String> headers) {
         Entity response = entityDiscoveryService.createEntity(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Edit an Entity", description = "Update an existing Entity")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Updated Entity", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "404", description = "Entity Not Found"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PutMapping("entity/edit/{id}")
+    public ResponseEntity<Entity> editEntity(@PathVariable UUID id, @RequestBody EntityRequest request, @RequestHeader Map<String, String> headers) {
+        Entity response = entityDiscoveryService.editEntity(id, request, headers);
+        return ResponseEntity.ok(response);
+    }
+
+     //Onboard Entity
+    @Operation(summary = "Onboard an Entity", description = "Onboard an Entity and map to the nAdmin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Onboarded Entity", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PostMapping("/entity/onboard")
+    public ResponseEntity<EntityMapping> onboardEntity(@RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
+        EntityMapping response = entityDiscoveryService.onboardEntity(request, headers);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Edit an onboarded Entity", description = "Modify an onboarded Entity mapping")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated Entity Mapping", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "404", description = "Entity Mapping Not Found"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PutMapping("/onboard/edit/{id}")
+    public ResponseEntity<EntityMapping> editOnboardedEntity(@PathVariable UUID id, @RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
+        EntityMapping updatedMapping = entityDiscoveryService.editOnboardedEntity(id, request, headers);
+        return ResponseEntity.ok(updatedMapping);
     }
 
 // Fetch all needs based on needAdminId
