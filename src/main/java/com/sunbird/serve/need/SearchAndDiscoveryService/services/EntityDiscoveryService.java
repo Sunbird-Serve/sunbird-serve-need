@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import com.sunbird.serve.need.models.Need.*;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
+import com.sunbird.serve.need.models.enums.UserRole;
 import com.sunbird.serve.need.models.request.EntityRequest;
 import com.sunbird.serve.need.models.request.EntityMappingRequest;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
@@ -142,7 +143,7 @@ public Entity editEntity(UUID id, EntityRequest request, Map<String, String> hea
         EntityMapping entityMapping = new EntityMapping();
         entityMapping.setEntityId(request.getEntityId());
         entityMapping.setUserId(request.getUserId());
-        entityMapping.setUserRole(request.getUserRole());
+        entityMapping.setUserRole(UserRole.valueOf(request.getUserRole()));
        
         
         // Additional logic for processing headers if needed
@@ -156,7 +157,7 @@ public Entity editEntity(UUID id, EntityRequest request, Map<String, String> hea
             .map(entityMapping -> {
                 if (request.getEntityId() != null) entityMapping.setEntityId(request.getEntityId());
                 if (request.getUserId() != null) entityMapping.setUserId(request.getUserId());
-                if (request.getUserRole() != null) entityMapping.setUserRole(request.getUserRole());
+                if (request.getUserRole() != null) entityMapping.setUserRole(UserRole.valueOf(request.getUserRole()));
                 
                 entityMapping.setUpdatedAt(Instant.now()); // Always update timestamp
                 return entityMappingRepository.save(entityMapping);

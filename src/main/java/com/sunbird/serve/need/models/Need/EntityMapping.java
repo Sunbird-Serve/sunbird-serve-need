@@ -27,6 +27,8 @@ public class EntityMapping {
 
     private UUID entityId;
     private String userId;
+
+    @Enumerated(EnumType.STRING) 
     private UserRole userRole;
 
     @CreationTimestamp

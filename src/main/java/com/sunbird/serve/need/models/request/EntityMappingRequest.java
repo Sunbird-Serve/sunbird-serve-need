@@ -18,5 +18,5 @@ public class EntityMappingRequest {
 
     private UUID entityId;
     private String userId;
-    private UserRole userRole;
+    private String userRole;
 }
