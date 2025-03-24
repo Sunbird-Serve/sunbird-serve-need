@@ -105,9 +105,9 @@ public ResponseEntity<Page<Entity>> getAllEntities(
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/entityDetails/{needAdminId}")
+    @GetMapping("/entityDetails/{userId}")
 public ResponseEntity<Page<Entity>> getAllEntityDetails(
-        @PathVariable(required = true) @Parameter(description = "Need Admin ID") String needAdminId,
+        @PathVariable(required = true) @Parameter(description = "Need Admin ID") String userId,
             @RequestParam(required = false, defaultValue = "0")  Integer page,
             @RequestParam(required = false, defaultValue = "10")  Integer size) {
 
@@ -115,7 +115,7 @@ public ResponseEntity<Page<Entity>> getAllEntityDetails(
     Page<Entity> entity;
 
     // Fetch entity id based on needAdminId
-        entity = entityDiscoveryService.getEntitiesByNeedAdminId(needAdminId, pageable);
+        entity = entityDiscoveryService.getEntitiesByUserId(userId, pageable);
 
     return ResponseEntity.ok(entity);
 }
@@ -146,47 +146,47 @@ public ResponseEntity<Page<Entity>> getAllEntityDetails(
         return ResponseEntity.ok(response);
     }
 
-     //Onboard Entity
-    @Operation(summary = "Onboard an Entity", description = "Onboard an Entity and map to the nAdmin")
+     //Register Entity
+    @Operation(summary = "Assign an Entity", description = "Assign an Entity to nAdmin or nCoordinator")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully Onboarded Entity", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "200", description = "Successfully Assigned Entity", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PostMapping("/entity/onboard")
-    public ResponseEntity<EntityMapping> onboardEntity(@RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
-        EntityMapping response = entityDiscoveryService.onboardEntity(request, headers);
+    @PostMapping("/entity/assign")
+    public ResponseEntity<EntityMapping> assignEntity(@RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
+        EntityMapping response = entityDiscoveryService.assignEntity(request, headers);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Edit an onboarded Entity", description = "Modify an onboarded Entity mapping")
+    @Operation(summary = "Edit an assigned Entity", description = "Modify an assigned Entity mapping")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully updated Entity Mapping", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "404", description = "Entity Mapping Not Found"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PutMapping("/onboard/edit/{id}")
-    public ResponseEntity<EntityMapping> editOnboardedEntity(@PathVariable UUID id, @RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
-        EntityMapping updatedMapping = entityDiscoveryService.editOnboardedEntity(id, request, headers);
+    @PutMapping("/assign/edit/{id}")
+    public ResponseEntity<EntityMapping> editAssignedEntity(@PathVariable UUID id, @RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
+        EntityMapping updatedMapping = entityDiscoveryService.editAssignedEntity(id, request, headers);
         return ResponseEntity.ok(updatedMapping);
     }
 
 // Fetch all needs based on needAdminId
-    @Operation(summary = "Fetch all needs by Need Admin ID", description = "Fetch all needs by Need Admin ID")
+    @Operation(summary = "Fetch all needs by User Id", description = "Fetch all needs by User Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully fetched needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @GetMapping("/needs/{needAdminId}")
-    public ResponseEntity<Page<Need>> getAllNeedsByNeedAdminId(
-            @PathVariable @Parameter(description = "Need Admin ID") String needAdminId,
+    @GetMapping("/needs/{userId}")
+    public ResponseEntity<Page<Need>> getAllNeedsByUserId(
+            @PathVariable @Parameter(description = "Need Admin ID") String userId,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size) {
         
         Pageable pageable = PageRequest.of(page, size);
-        Page<Need> needs = entityDiscoveryService.getNeedsByNeedAdminId(needAdminId, pageable);
+        Page<Need> needs = entityDiscoveryService.getNeedsByUserId(userId, pageable);
         return ResponseEntity.ok(needs);
     }
 

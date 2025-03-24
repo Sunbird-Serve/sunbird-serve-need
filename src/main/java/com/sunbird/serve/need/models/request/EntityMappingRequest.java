@@ -1,6 +1,7 @@
 package com.sunbird.serve.need.models.request;
 
 import com.sunbird.serve.need.models.enums.EntityStatus;
+import com.sunbird.serve.need.models.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,6 @@ import java.util.UUID;
 public class EntityMappingRequest {
 
     private UUID entityId;
-    private String needAdminId;
-    private String needCoordinatorId;
+    private String userId;
+    private UserRole userRole;
 }

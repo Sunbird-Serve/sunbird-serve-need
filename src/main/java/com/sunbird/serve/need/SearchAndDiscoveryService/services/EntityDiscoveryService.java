@@ -67,20 +67,20 @@ public class EntityDiscoveryService {
     }
 
     
-    public Page<Entity> getEntitiesByNeedAdminId(String needAdminId, Pageable pageable) {
+    public Page<Entity> getEntitiesByUserId(String userId, Pageable pageable) {
     try {
-        return entitySearchRepository.findEntitiesByNeedAdminId(needAdminId, pageable);
+        return entitySearchRepository.findEntitiesByUserId(userId, pageable);
     } catch (Exception e) {
-        logger.error("Error fetching Entities by NeedAdminId: {}", needAdminId, e);
-        throw new RuntimeException("Error fetching Entities by NeedAdminId", e);
+        logger.error("Error fetching Entities by UserId: {}", userId, e);
+        throw new RuntimeException("Error fetching Entities by UserId", e);
     }
 }
 
 // Fetch all needs based on Need Admin ID
-    public Page<Need> getNeedsByNeedAdminId(String needAdminId, Pageable pageable) {
+    public Page<Need> getNeedsByUserId(String userId, Pageable pageable) {
         try {
             // Fetch entities associated with the needAdminId
-            List<Entity> entities = entitySearchRepository.findEntitiesByNeedAdminId(needAdminId, pageable).getContent();
+            List<Entity> entities = entitySearchRepository.findEntitiesByUserId(userId, pageable).getContent();
             
             // Extract entity IDs
             List<String> entityIds = entities.stream()
@@ -91,8 +91,8 @@ public class EntityDiscoveryService {
             // Fetch needs associated with the retrieved entity IDs
             return needDiscoveryRepository.findAllByEntityIds(entityIds, pageable);
         } catch (Exception e) {
-            logger.error("Error fetching Needs by NeedAdminId: {}", needAdminId, e);
-            throw new RuntimeException("Error fetching Needs by NeedAdminId", e);
+            logger.error("Error fetching Needs by UserId: {}", userId, e);
+            throw new RuntimeException("Error fetching Needs by UserId", e);
         }
     }
 
@@ -137,11 +137,12 @@ public Entity editEntity(UUID id, EntityRequest request, Map<String, String> hea
 
 
 
-    public EntityMapping onboardEntity(EntityMappingRequest request, Map<String, String> headers) {
+    public EntityMapping assignEntity(EntityMappingRequest request, Map<String, String> headers) {
         // Convert EntityRequest to Entity
         EntityMapping entityMapping = new EntityMapping();
         entityMapping.setEntityId(request.getEntityId());
-        entityMapping.setNeedAdminId(request.getNeedAdminId());
+        entityMapping.setUserId(request.getUserId());
+        entityMapping.setUserRole(request.getUserRole());
        
         
         // Additional logic for processing headers if needed
@@ -150,12 +151,12 @@ public Entity editEntity(UUID id, EntityRequest request, Map<String, String> hea
         return entityMappingRepository.save(entityMapping);
     }
 
-    public EntityMapping editOnboardedEntity(UUID id, EntityMappingRequest request, Map<String, String> headers) {
+    public EntityMapping editAssignedEntity(UUID id, EntityMappingRequest request, Map<String, String> headers) {
         return entityMappingRepository.findById(id)
             .map(entityMapping -> {
                 if (request.getEntityId() != null) entityMapping.setEntityId(request.getEntityId());
-                if (request.getNeedAdminId() != null) entityMapping.setNeedAdminId(request.getNeedAdminId());
-                if (request.getNeedCoordinatorId() != null) entityMapping.setNeedCoordinatorId(request.getNeedCoordinatorId());
+                if (request.getUserId() != null) entityMapping.setUserId(request.getUserId());
+                if (request.getUserRole() != null) entityMapping.setUserRole(request.getUserRole());
                 
                 entityMapping.setUpdatedAt(Instant.now()); // Always update timestamp
                 return entityMappingRepository.save(entityMapping);
