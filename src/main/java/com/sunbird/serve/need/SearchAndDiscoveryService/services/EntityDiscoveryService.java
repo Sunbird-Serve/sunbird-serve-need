@@ -77,6 +77,15 @@ public class EntityDiscoveryService {
     }
 }
 
+public Page<EntityMapping> getUsersByEntityId(UUID entityId, Pageable pageable) {
+    try {
+        return entityMappingRepository.findUsersByEntityId(entityId, pageable);
+    } catch (Exception e) {
+        logger.error("Error fetching Entities by entityId: {}", entityId, e);
+        throw new RuntimeException("Error fetching Entities by entityId", e);
+    }
+}
+
 // Fetch all needs based on Need Admin ID
     public Page<Need> getNeedsByUserId(String userId, Pageable pageable) {
         try {

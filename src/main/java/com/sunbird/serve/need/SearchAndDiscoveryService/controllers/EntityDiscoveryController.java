@@ -98,6 +98,30 @@ public ResponseEntity<Page<Entity>> getAllEntities(
     }
 
 
+
+//Fetch entity details by providing Need Admin ID
+    @Operation(summary = "Fetch all Users Id by providing Entity Id ", description = "Fetch all Users by providing Entity Id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched nCoordinators Id", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/userList/{entityId}")
+public ResponseEntity<Page<EntityMapping>> getAllUserId(
+        @PathVariable(required = true) @Parameter(description = "Entity ID") UUID entityId,
+            @RequestParam(required = false, defaultValue = "0")  Integer page,
+            @RequestParam(required = false, defaultValue = "10")  Integer size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+    Page<EntityMapping> entityMapping;
+
+    // Fetch entity id based on needAdminId
+        entityMapping = entityDiscoveryService.getUsersByEntityId(entityId, pageable);
+
+    return ResponseEntity.ok(entityMapping);
+}
+
+
 //Fetch entity details by providing Need Admin ID
     @Operation(summary = "Fetch all Entity Id by providing Need Admin Id ", description = "Fetch all Entity Id by providing Need Admin Id")
     @ApiResponses(value = {
