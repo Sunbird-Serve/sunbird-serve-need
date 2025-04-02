@@ -1,6 +1,7 @@
 package com.sunbird.serve.need.models.Need;
 
 import com.sunbird.serve.need.models.enums.EntityStatus;
+import com.sunbird.serve.need.models.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,10 @@ public class EntityMapping {
     private UUID id;
 
     private UUID entityId;
-    private String needAdminId;
-    private String needCoordinatorId;
+    private String userId;
+
+    @Enumerated(EnumType.STRING) 
+    private UserRole userRole;
 
     @CreationTimestamp
     private Instant createdAt;
