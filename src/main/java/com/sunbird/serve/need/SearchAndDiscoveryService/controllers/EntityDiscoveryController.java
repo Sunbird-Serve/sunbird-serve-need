@@ -73,7 +73,7 @@ public class EntityDiscoveryController {
     @GetMapping("/entity/all")
 public ResponseEntity<Page<Entity>> getAllEntities(
     @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "10") int size) 
+    @RequestParam(defaultValue = "1000") int size) 
 {
     Pageable pageable = PageRequest.of(page, size);
     Page<Entity> allEntities = entityDiscoveryService.getAllEntities(pageable);
