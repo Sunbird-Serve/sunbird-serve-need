@@ -1,0 +1,34 @@
+# Environment Variables Template
+# Copy this file to .env and update the values according to your environment
+
+# Database Configuration
+DB_URL=jdbc:postgresql://ec2-35-154-40-146.ap-south-1.compute.amazonaws.com:5432/ev-vriddhi
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+
+# JPA Configuration
+JPA_SHOW_SQL=false
+JPA_DDL_AUTO=validate
+
+# Logging Configuration
+HIBERNATE_SQL_LOG_LEVEL=INFO
+HIBERNATE_BINDER_LOG_LEVEL=INFO
+APP_LOG_LEVEL=INFO
+NETTY_LOG_LEVEL=INFO
+
+# Error Handling
+INCLUDE_EXCEPTION=false
+INCLUDE_STACKTRACE=never
+
+# Logging File
+LOG_FILE_NAME=needLog.log
+
+# Active Profile
+SPRING_PROFILES_ACTIVE=dev
+
+# Server Configuration (optional - can be overridden)
+SERVER_PORT=9000
+
+# Basic Authentication (for basic-auth profile)
+BASIC_AUTH_USERNAME=admin
+BASIC_AUTH_PASSWORD=your_password

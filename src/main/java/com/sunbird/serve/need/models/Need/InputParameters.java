@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +30,10 @@ public class InputParameters {
 
     private String needDeliverableId;
     private String inputUrl;
+    
+    @Enumerated(EnumType.STRING)
     private SoftwarePlatform softwarePlatform;
+    
     private Instant startTime;
     private Instant endTime;
 
