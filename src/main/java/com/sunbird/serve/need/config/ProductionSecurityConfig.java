@@ -43,14 +43,14 @@ public class ProductionSecurityConfig {
                 // Allow health check without authentication
                 .requestMatchers("/actuator/health").permitAll()
                 
-                // Require authentication for Swagger UI and API docs
+                // Allow Swagger UI and API docs without authentication
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
                     "/swagger-resources/**",
                     "/webjars/**"
-                ).authenticated()
+                ).permitAll()
                 
                 // Require authentication for API endpoints
                 .requestMatchers("/api/**").authenticated()
