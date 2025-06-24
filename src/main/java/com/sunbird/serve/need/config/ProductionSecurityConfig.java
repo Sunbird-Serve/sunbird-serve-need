@@ -53,14 +53,14 @@ public class ProductionSecurityConfig {
                 ).permitAll()
                 
                 // Require authentication for API endpoints
-                .requestMatchers("/api/**").authenticated()
+                .requestMatchers("/api/**").permitAll()
                 
                 // Allow actuator endpoints (consider restricting in production)
                 .requestMatchers("/actuator/info").permitAll()
-                .requestMatchers("/actuator/**").authenticated()
+                .requestMatchers("/actuator/**").permitAll()
                 
                 // Require authentication for all other requests
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             
             // Enable HTTP Basic authentication
@@ -84,8 +84,8 @@ public class ProductionSecurityConfig {
         
         // Restrict origins in production - replace with your actual domains
         List<String> allowedOrigins = Arrays.asList(
-            "https://your-frontend-domain.com",
-            "https://your-api-gateway.com"
+            "http://localhost:3000",
+            "https://serve-v1.evean.net"
         );
         configuration.setAllowedOrigins(allowedOrigins);
         
