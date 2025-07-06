@@ -3,6 +3,7 @@ package com.sunbird.serve.need;
 import com.sunbird.serve.need.models.Need.*;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
+import com.sunbird.serve.need.models.enums.SoftwarePlatform;
 import com.sunbird.serve.need.models.request.*;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,6 +201,22 @@ public class NeedDeliverableService {
         } catch (Exception e) {
             logger.error("Error creating OutputParameters with request: " + outputParametersRequest, e);
             throw new RuntimeException("Error creating OutputParameters", e);
+        }
+    }
+
+    public InputParameters createInputParameters(CreateInputParametersRequest request) {
+        try {
+            InputParameters inputParameters = InputParameters.builder()
+                .needDeliverableId(request.getNeedDeliverableId())
+                .inputUrl("To be added soon")
+                .softwarePlatform(SoftwarePlatform.GMEET)
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .build();
+            return inputParametersRepository.save(inputParameters);
+        } catch (Exception e) {
+            logger.error("Error creating InputParameters with request: " + request, e);
+            throw new RuntimeException("Error creating InputParameters", e);
         }
     }
 }

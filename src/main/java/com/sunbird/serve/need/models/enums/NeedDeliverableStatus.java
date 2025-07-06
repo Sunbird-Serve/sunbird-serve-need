@@ -5,5 +5,8 @@ public enum NeedDeliverableStatus {
     Planned,
     InProgress,
     Completed,
-    Cancelled
+    Cancelled,
+    Offline,
+    PlannedPause,
+    DeclaredOff
 }
