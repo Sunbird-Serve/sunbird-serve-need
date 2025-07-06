@@ -12,6 +12,7 @@ import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.request.NeedDeliverableRequest;
 import com.sunbird.serve.need.models.request.DeliverableDetailsRequest;
 import com.sunbird.serve.need.models.request.OutputParametersRequest;
+import com.sunbird.serve.need.models.request.CreateInputParametersRequest;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import org.springframework.http.HttpStatus;
 import java.util.List;
@@ -137,6 +138,18 @@ public class NeedDeliverableController {
     @PostMapping("/deliverable-output/create")
     public ResponseEntity<OutputParameters> createOutputParameters(@RequestBody OutputParametersRequest request, @RequestHeader Map<String, String> headers) {
         OutputParameters response = needDeliverableService.createOutputParameters(request, headers);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Create Input Parameters", description = "Create Input Parameters for a Need Deliverable with default values")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Created Input Parameters", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PostMapping("/deliverable-input/create")
+    public ResponseEntity<InputParameters> createInputParameters(@RequestBody CreateInputParametersRequest request) {
+        InputParameters response = needDeliverableService.createInputParameters(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
