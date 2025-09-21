@@ -114,7 +114,8 @@ public class NeedPlanService {
             Optional<Occurrence> occurrenceOptional = occurrenceRepository.findById(UUID.fromString(needPlan.getOccurrenceId()));
             if (occurrenceOptional.isPresent()) {
                 Occurrence occurrence = occurrenceOptional.get();
-                LocalDate startDate = occurrence.getStartDate().atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
+                // Use current date (when nomination is approved) instead of occurrence startDate
+                LocalDate startDate = LocalDate.now(ZoneId.of("Asia/Kolkata"));
                 LocalDate endDate = occurrence.getEndDate().atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
                 List<TimeSlot> timeSlots = timeSlotRepository.findByOccurrenceId(needPlan.getOccurrenceId());
                 
