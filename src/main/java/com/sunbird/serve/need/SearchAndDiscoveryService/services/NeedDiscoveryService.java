@@ -67,6 +67,38 @@ public class NeedDiscoveryService {
         }
     }
 
+    // Fetch need with full details (requirement, occurrence, timeslots) by needId
+    public Optional<NeedEntityAndRequirement> getNeedDetailsById(UUID needId) {
+        try {
+            Optional<Need> need = needDiscoveryRepository.findById(needId);
+            if (need.isEmpty()) return Optional.empty();
+
+            Need n = need.get();
+            Optional<NeedRequirement> needRequirement = Optional.empty();
+            Optional<Occurrence> occurrence = Optional.empty();
+            List<TimeSlot> slots = List.of();
+
+            if (n.getRequirementId() != null) {
+                needRequirement = needRequirementRepository.findById(UUID.fromString(n.getRequirementId()));
+                if (needRequirement.isPresent() && needRequirement.get().getOccurrenceId() != null) {
+                    String occurrenceId = needRequirement.get().getOccurrenceId();
+                    occurrence = occurrenceRepository.findById(UUID.fromString(occurrenceId));
+                    slots = timeSlotRepository.findByOccurrenceId(occurrenceId);
+                }
+            }
+
+            return Optional.of(NeedEntityAndRequirement.builder()
+                    .need(n)
+                    .needRequirement(needRequirement)
+                    .occurrence(occurrence)
+                    .timeSlots(slots)
+                    .build());
+        } catch (Exception e) {
+            logger.error("Error fetching Need details by ID: {}", needId, e);
+            throw new RuntimeException("Error fetching Need details by ID", e);
+        }
+    }
+
     // Fetch need by status
     public Page<NeedEntityAndRequirement> getNeedsByStatus(NeedStatus status, Pageable pageable) {
         try {
