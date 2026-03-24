@@ -70,6 +70,20 @@ public class NeedDiscoveryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Fetch need with full details including requirement, occurrence and timeslots
+    @Operation(summary = "Fetch complete Need details by NeedId", description = "Returns need along with its requirement, occurrence and timeslots inline")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Need Details", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "404", description = "Need not found"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/need/{needId}/details")
+    public ResponseEntity<NeedEntityAndRequirement> getNeedDetails(@PathVariable String needId) {
+        return needDiscoveryService.getNeedDetailsById(UUID.fromString(needId))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
    
 
     //Fetch all needs based on its status
