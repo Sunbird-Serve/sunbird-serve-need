@@ -1,34 +1,58 @@
-# Environment Variables Template
-# Copy this file to .env and update the values according to your environment
+# ==============================================================
+# Environment Variables for Sunbird Serve Need
+# ==============================================================
+# Copy this file and rename for your environment:
+#   .env.dev   — local development
+#   .env.prod  — production
+#   .env.stage — staging
+#
+# Pass these via Docker, systemd, or your CI/CD pipeline.
+# NEVER commit actual credentials to git.
+# ==============================================================
 
-# Database Configuration
-DB_URL=hostname/ev-vriddhi
+# --- Database ---
+DB_URL=jdbc:postgresql://localhost:5432/serve-need
 DB_USERNAME=postgres
-DB_PASSWORD=your_password
+DB_PASSWORD=changeme
 
-# JPA Configuration
+# Connection pool
+DB_POOL_MAX=10
+DB_POOL_MIN_IDLE=2
+DB_POOL_IDLE_TIMEOUT=300000
+DB_POOL_CONN_TIMEOUT=20000
+
+# --- JPA ---
 JPA_SHOW_SQL=false
+JPA_FORMAT_SQL=false
 JPA_DDL_AUTO=validate
+HIBERNATE_BATCH_SIZE=25
 
-# Logging Configuration
-HIBERNATE_SQL_LOG_LEVEL=INFO
-HIBERNATE_BINDER_LOG_LEVEL=INFO
+# --- Logging ---
+HIBERNATE_SQL_LOG_LEVEL=WARN
+HIBERNATE_BINDER_LOG_LEVEL=WARN
 APP_LOG_LEVEL=INFO
-NETTY_LOG_LEVEL=INFO
+NETTY_LOG_LEVEL=WARN
+LOG_FILE_NAME=needLog.log
 
-# Error Handling
+# --- Error Handling ---
 INCLUDE_EXCEPTION=false
 INCLUDE_STACKTRACE=never
 
-# Logging File
-LOG_FILE_NAME=needLog.log
+# --- Actuator ---
+ACTUATOR_ENDPOINTS=health,info,metrics
+ACTUATOR_HEALTH_DETAILS=when-authorized
 
-# Active Profile
-SPRING_PROFILES_ACTIVE=dev
+# --- Swagger ---
+SWAGGER_ENABLED=true
 
-# Server Configuration (optional - can be overridden)
-SERVER_PORT=9000
-
-# Basic Authentication (for basic-auth profile)
+# --- Security ---
 BASIC_AUTH_USERNAME=admin
-BASIC_AUTH_PASSWORD=your_password
+BASIC_AUTH_PASSWORD=changeme
+
+# --- CORS ---
+CORS_ALLOWED_ORIGINS=*
+
+# --- Profile ---
+# Not needed if you're purely env-var driven, but useful for
+# activating the 'test' profile (H2 database) during CI.
+SPRING_PROFILES_ACTIVE=dev
