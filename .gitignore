@@ -37,4 +37,11 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
+.vscode
+
+### Build artifacts & misc ###
+*.bin
+*.log
+*.probe
+*.lock
+*.class
