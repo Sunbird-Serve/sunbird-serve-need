@@ -1,6 +1,8 @@
 package com.sunbird.serve.need.models.Need;
 
 import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.dto.RequirementDTO;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -24,6 +27,7 @@ public class Need {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    private String agencyId;
     private String needTypeId;
     private String description;
     private String needPurpose;
@@ -34,6 +38,10 @@ public class Need {
 
     @Enumerated(EnumType.STRING)
     private NeedStatus status;
+
+    @Type(JsonType.class)
+    @Column(columnDefinition = "jsonb")
+    private RequirementDTO requirement;
 
     @CreationTimestamp
     private Instant createdAt;

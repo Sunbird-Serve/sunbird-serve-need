@@ -1,7 +1,6 @@
 package com.sunbird.serve.need;
 
 import com.sunbird.serve.need.models.Need.Need;
-import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,4 +38,11 @@ public interface NeedDiscoveryRepository extends JpaRepository<Need, UUID> {
     Page<Need> findAllByUserIdAndStatus(String userId, NeedStatus status, Pageable pageable);
 
     Page<Need> findAllByUserIdAndNeedTypeId(String userId, String needTypeId, Pageable pageable);
+
+    // Agency-scoped queries
+    Page<Need> findAllByAgencyId(String agencyId, Pageable pageable);
+    Page<Need> findAllByAgencyIdAndStatus(String agencyId, NeedStatus status, Pageable pageable);
+    Page<Need> findAllByAgencyIdAndEntityId(String agencyId, String entityId, Pageable pageable);
+    Page<Need> findAllByAgencyIdAndUserId(String agencyId, String userId, Pageable pageable);
+    Page<Need> findAllByAgencyIdAndNeedTypeId(String agencyId, String needTypeId, Pageable pageable);
 }

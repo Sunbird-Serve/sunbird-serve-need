@@ -48,6 +48,9 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'com.h2database:h2'
 	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	// JSONB support for Hibernate
+	implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.7.0'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {

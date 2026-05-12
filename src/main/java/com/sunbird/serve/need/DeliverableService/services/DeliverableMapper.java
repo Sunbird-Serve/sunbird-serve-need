@@ -45,6 +45,13 @@ public class DeliverableMapper {
             needDeliverable.setComments(needDeliverableRequest.getComments());
             needDeliverable.setStatus(needDeliverableRequest.getStatus());
             needDeliverable.setDeliverableDate(needDeliverableRequest.getDeliverableDate());
+            // Dual-write: set JSONB fields if provided
+            if (needDeliverableRequest.getInputParameters() != null) {
+                needDeliverable.setInputParameters(needDeliverableRequest.getInputParameters());
+            }
+            if (needDeliverableRequest.getOutputParameters() != null) {
+                needDeliverable.setOutputParameters(needDeliverableRequest.getOutputParameters());
+            }
 
             return needDeliverable;
         } catch (Exception e) {

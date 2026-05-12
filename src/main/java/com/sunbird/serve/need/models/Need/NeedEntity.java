@@ -1,7 +1,6 @@
 package com.sunbird.serve.need.models.Need;
 
 import com.sunbird.serve.need.models.enums.EntityStatus;
-import com.sunbird.serve.need.models.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,23 +16,32 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@jakarta.persistence.Entity
-public class EntityMapping {
+@Entity
+@Table(name = "entity")
+public class NeedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private UUID entityId;
-    private String userId;
+    private String agencyId;
+    private String name;
+    private String registrationId;
+    private String website;
+    private String mobile;
+    @Column(name = "address_line1")
+    private String addressLine1;
+    private String district;
+    private String state;
+    private String pincode;
+    private String category;
 
-    @Enumerated(EnumType.STRING) 
-    private UserRole userRole;
+    @Enumerated(EnumType.STRING)
+    private EntityStatus status;
 
     @CreationTimestamp
     private Instant createdAt;
 
     @UpdateTimestamp
     private Instant updatedAt;
-
 }

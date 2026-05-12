@@ -1,7 +1,9 @@
 package com.sunbird.serve.need.models.Need;
 
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
-import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.dto.InputParametersDTO;
+import com.sunbird.serve.need.models.dto.OutputParametersDTO;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -9,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -32,6 +35,14 @@ public class NeedDeliverable {
     private String needPlanId;
     private String comments;
     private LocalDate deliverableDate;
+
+    @Type(JsonType.class)
+    @Column(name = "input_parameters", columnDefinition = "jsonb")
+    private InputParametersDTO inputParameters;
+
+    @Type(JsonType.class)
+    @Column(name = "output_parameters", columnDefinition = "jsonb")
+    private OutputParametersDTO outputParameters;
 
     @CreationTimestamp
     private Instant createdAt;

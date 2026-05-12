@@ -12,7 +12,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.lang.String;
 import java.util.UUID;
 
 @Builder
@@ -22,28 +21,27 @@ import java.util.UUID;
 @Entity
 public class NeedType {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.UUID)
-   private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-   private String description;
-   private String userId;
-   private String requirementId;
-   private String taxonomyId;
-   private String onboardingId;
-   private String name;
+    private String agencyId;
+    private String description;
+    private String userId;
+    private String requirementId;
+    private String taxonomyId;
+    private String onboardingId;
+    private String name;
 
-   @Enumerated(EnumType.STRING)
-   private NeedTypeStatus status;
+    @Enumerated(EnumType.STRING)
+    private NeedTypeStatus status;
 
-   @Enumerated(EnumType.STRING)
-   private TaskType taskType;
+    @Enumerated(EnumType.STRING)
+    private TaskType taskType;
 
-   @CreationTimestamp
-   private Instant createdAt;
+    @CreationTimestamp
+    private Instant createdAt;
 
-   @UpdateTimestamp
-   private Instant updatedAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
 }
-
-

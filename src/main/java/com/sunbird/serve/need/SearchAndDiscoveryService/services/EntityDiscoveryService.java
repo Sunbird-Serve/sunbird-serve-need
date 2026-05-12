@@ -5,28 +5,18 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sunbird.serve.need.models.Need.*;
-import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.enums.UserRole;
 import com.sunbird.serve.need.models.request.EntityRequest;
 import com.sunbird.serve.need.models.request.EntityMappingRequest;
-import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
-import com.sunbird.serve.need.models.Need.NeedRequirement;
-import org.springframework.web.bind.annotation.*;
-
-
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
 import java.util.Map;
-import java.time.Instant;
-import org.springframework.data.domain.Page; 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
-import org.springframework.http.HttpStatus;
-import java.time.LocalDateTime;
-
 
 @Service
 public class EntityDiscoveryService {
@@ -47,18 +37,15 @@ public class EntityDiscoveryService {
         this.needDiscoveryRepository = needDiscoveryRepository;
     }
 
-    // Fetch all the entities 
-    public Page<Entity> getAllEntity(EntityStatus status, Pageable pageable) {
+    public Page<NeedEntity> getAllEntity(EntityStatus status, Pageable pageable) {
         return entitySearchRepository.findAllByStatus(status, pageable);
     }
 
-    // Fetch all the entities 
-    public Page<Entity> getAllEntities(Pageable pageable) {
+    public Page<NeedEntity> getAllEntities(Pageable pageable) {
         return entitySearchRepository.findAll(pageable);
     }
 
-     // Fetch entity based on entityId
-    public Optional<Entity> getEntityById(UUID entityId) {
+    public Optional<NeedEntity> getEntityById(UUID entityId) {
         try {
             return entitySearchRepository.findById(entityId);
         } catch (Exception e) {
@@ -67,38 +54,30 @@ public class EntityDiscoveryService {
         }
     }
 
-    
-    public Page<Entity> getEntitiesByUserId(String userId, Pageable pageable) {
-    try {
-        return entitySearchRepository.findEntitiesByUserId(userId, pageable);
-    } catch (Exception e) {
-        logger.error("Error fetching Entities by UserId: {}", userId, e);
-        throw new RuntimeException("Error fetching Entities by UserId", e);
+    public Page<NeedEntity> getEntitiesByUserId(String userId, Pageable pageable) {
+        try {
+            return entitySearchRepository.findEntitiesByUserId(userId, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching Entities by UserId: {}", userId, e);
+            throw new RuntimeException("Error fetching Entities by UserId", e);
+        }
     }
-}
 
-public Page<EntityMapping> getUsersByEntityId(UUID entityId, Pageable pageable) {
-    try {
-        return entityMappingRepository.findUsersByEntityId(entityId, pageable);
-    } catch (Exception e) {
-        logger.error("Error fetching Entities by entityId: {}", entityId, e);
-        throw new RuntimeException("Error fetching Entities by entityId", e);
+    public Page<UserMapping> getUsersByEntityId(UUID entityId, Pageable pageable) {
+        try {
+            return entityMappingRepository.findUsersByOrgId(entityId, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching Users by entityId: {}", entityId, e);
+            throw new RuntimeException("Error fetching Users by entityId", e);
+        }
     }
-}
 
-// Fetch all needs based on Need Admin ID
     public Page<Need> getNeedsByUserId(String userId, Pageable pageable) {
         try {
-            // Fetch entities associated with the needAdminId
-            List<Entity> entities = entitySearchRepository.findEntitiesByUserId(userId, pageable).getContent();
-            
-            // Extract entity IDs
+            List<NeedEntity> entities = entitySearchRepository.findEntitiesByUserId(userId, pageable).getContent();
             List<String> entityIds = entities.stream()
-    .map(entity -> entity.getId().toString()) // Convert UUID to String
-    .collect(Collectors.toList());
-
-            
-            // Fetch needs associated with the retrieved entity IDs
+                .map(e -> e.getId().toString())
+                .collect(Collectors.toList());
             return needDiscoveryRepository.findAllByEntityIds(entityIds, pageable);
         } catch (Exception e) {
             logger.error("Error fetching Needs by UserId: {}", userId, e);
@@ -106,72 +85,69 @@ public Page<EntityMapping> getUsersByEntityId(UUID entityId, Pageable pageable) 
         }
     }
 
-    public Entity createEntity(EntityRequest request, Map<String, String> headers) {
-        // Convert EntityRequest to Entity
-        Entity entity = new Entity();
-        entity.setName(request.getName());
-        entity.setWebsite(request.getWebsite());
-        entity.setAddress_line1(request.getAddress_line1());
-        entity.setMobile(request.getMobile());
-        entity.setDistrict(request.getDistrict());
-        entity.setState(request.getState());
-        entity.setCategory(request.getCategory());
-        entity.setStatus(request.getStatus());
-       
-        
-        // Additional logic for processing headers if needed
-        
-        // Save entity to repository
+    public NeedEntity createEntity(EntityRequest request, Map<String, String> headers) {
+        NeedEntity entity = NeedEntity.builder()
+            .name(request.getName())
+            .registrationId(request.getRegistrationId())
+            .website(request.getWebsite())
+            .addressLine1(request.getAddressLine1())
+            .mobile(request.getMobile())
+            .district(request.getDistrict())
+            .state(request.getState())
+            .pincode(request.getPincode())
+            .category(request.getCategory())
+            .status(request.getStatus())
+            .agencyId(headers.get("x-agency-id"))
+            .build();
         return entitySearchRepository.save(entity);
     }
 
-
-
-public Entity editEntity(UUID id, EntityRequest request, Map<String, String> headers) {
+    public NeedEntity editEntity(UUID id, EntityRequest request, Map<String, String> headers) {
         return entitySearchRepository.findById(id)
             .map(entity -> {
                 if (request.getName() != null) entity.setName(request.getName());
+                if (request.getRegistrationId() != null) entity.setRegistrationId(request.getRegistrationId());
                 if (request.getWebsite() != null) entity.setWebsite(request.getWebsite());
-                if (request.getAddress_line1() != null) entity.setAddress_line1(request.getAddress_line1());
+                if (request.getAddressLine1() != null) entity.setAddressLine1(request.getAddressLine1());
                 if (request.getMobile() != null) entity.setMobile(request.getMobile());
                 if (request.getDistrict() != null) entity.setDistrict(request.getDistrict());
                 if (request.getState() != null) entity.setState(request.getState());
+                if (request.getPincode() != null) entity.setPincode(request.getPincode());
                 if (request.getCategory() != null) entity.setCategory(request.getCategory());
                 if (request.getStatus() != null) entity.setStatus(request.getStatus());
-
-                entity.setUpdatedAt(Instant.now()); // Always update timestamp
                 return entitySearchRepository.save(entity);
             })
-            .orElseThrow(() -> new EntityNotFoundException("Entity not found with id: " + id));
+            .orElseThrow(() -> new RuntimeException("Entity not found with id: " + id));
     }
 
-
-
-    public EntityMapping assignEntity(EntityMappingRequest request, Map<String, String> headers) {
-        // Convert EntityRequest to Entity
-        EntityMapping entityMapping = new EntityMapping();
-        entityMapping.setEntityId(request.getEntityId());
-        entityMapping.setUserId(request.getUserId());
-        entityMapping.setUserRole(UserRole.valueOf(request.getUserRole()));
-       
-        
-        // Additional logic for processing headers if needed
-        
-        // Save entity to repository
-        return entityMappingRepository.save(entityMapping);
+    public UserMapping assignEntity(EntityMappingRequest request, Map<String, String> headers) {
+        UserMapping mapping = UserMapping.builder()
+            .agencyId(request.getAgencyId() != null ? request.getAgencyId() : headers.get("x-agency-id"))
+            .orgId(request.getEntityId())
+            .userId(request.getUserId())
+            .userRole(UserRole.valueOf(request.getUserRole()))
+            .build();
+        return entityMappingRepository.save(mapping);
     }
 
-    public EntityMapping editAssignedEntity(UUID id, EntityMappingRequest request, Map<String, String> headers) {
+    public UserMapping editAssignedEntity(UUID id, EntityMappingRequest request, Map<String, String> headers) {
         return entityMappingRepository.findById(id)
-            .map(entityMapping -> {
-                if (request.getEntityId() != null) entityMapping.setEntityId(request.getEntityId());
-                if (request.getUserId() != null) entityMapping.setUserId(request.getUserId());
-                if (request.getUserRole() != null) entityMapping.setUserRole(UserRole.valueOf(request.getUserRole()));
-                
-                entityMapping.setUpdatedAt(Instant.now()); // Always update timestamp
-                return entityMappingRepository.save(entityMapping);
+            .map(mapping -> {
+                if (request.getEntityId() != null) mapping.setOrgId(request.getEntityId());
+                if (request.getUserId() != null) mapping.setUserId(request.getUserId());
+                if (request.getUserRole() != null) mapping.setUserRole(UserRole.valueOf(request.getUserRole()));
+                if (request.getAgencyId() != null) mapping.setAgencyId(request.getAgencyId());
+                return entityMappingRepository.save(mapping);
             })
-            .orElseThrow(() -> new EntityNotFoundException("Entity Mapping not found with id: " + id));
+            .orElseThrow(() -> new RuntimeException("User Mapping not found with id: " + id));
     }
-   
+
+    public Page<NeedEntity> getEntitiesByAgencyId(String agencyId, Pageable pageable) {
+        try {
+            return entitySearchRepository.findAllByAgencyId(agencyId, pageable);
+        } catch (Exception e) {
+            logger.error("Error fetching Entities by AgencyId: {}", agencyId, e);
+            throw new RuntimeException("Error fetching Entities by AgencyId", e);
+        }
+    }
 }

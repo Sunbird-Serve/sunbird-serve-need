@@ -26,5 +26,7 @@ public interface NeedTypeDiscoveryRepository extends JpaRepository<NeedType, UUI
 
     Page<NeedType> findNeedTypeByUserId(String userId, Pageable pageable);
 
-    //Page<NeedType> findAllByUserIdAndNeedTypeId(String userId, String needTypeId, Pageable pageable);
+    // Agency-scoped queries
+    Page<NeedType> findAllByAgencyId(String agencyId, Pageable pageable);
+    Page<NeedType> findAllByAgencyIdAndStatus(String agencyId, NeedTypeStatus status, Pageable pageable);
 }

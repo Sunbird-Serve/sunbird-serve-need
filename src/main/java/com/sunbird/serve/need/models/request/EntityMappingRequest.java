@@ -1,14 +1,11 @@
 package com.sunbird.serve.need.models.request;
 
-import com.sunbird.serve.need.models.enums.EntityStatus;
-import com.sunbird.serve.need.models.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.UUID;
-
-
 
 @Builder
 @Data
@@ -16,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class EntityMappingRequest {
 
+    private String agencyId;
     private UUID entityId;
     private String userId;
     private String userRole;

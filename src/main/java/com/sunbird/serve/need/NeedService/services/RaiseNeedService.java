@@ -10,6 +10,10 @@ import com.sunbird.serve.need.models.Need.NeedRequirement;
 import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.Need.TimeSlot;
 import com.sunbird.serve.need.models.enums.NeedStatus;
+import com.sunbird.serve.need.models.dto.RequirementDTO;
+import com.sunbird.serve.need.models.dto.ScheduleDTO;
+import com.sunbird.serve.need.models.dto.TimeSlotDTO;
+import com.sunbird.serve.need.config.TenantContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -19,6 +23,7 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class RaiseNeedService {
@@ -94,6 +99,8 @@ public class RaiseNeedService {
                             .userId(request.getNeedRequest().getUserId())
                             .status(request.getNeedRequest().getStatus())
                             .name(request.getNeedRequest().getName())
+                            .agencyId(TenantContext.getAgencyId(headers))
+                            .requirement(buildRequirementDTO(request.getNeedRequirementRequest()))
                             .build()
             );
         } catch (Exception e) {
@@ -212,5 +219,38 @@ public class RaiseNeedService {
             logger.error("Error updating Need status with ID: " + needId, e);
             throw new RuntimeException("Error updating Need status", e);
         }
+    }
+
+    private RequirementDTO buildRequirementDTO(NeedRequirementRequest req) {
+        if (req == null) return null;
+
+        ScheduleDTO schedule = null;
+        if (req.getOccurrence() != null) {
+            OccurrenceRequest occ = req.getOccurrence();
+            List<TimeSlotDTO> timeSlots = occ.getTimeSlots() != null
+                ? occ.getTimeSlots().stream()
+                    .map(ts -> TimeSlotDTO.builder()
+                        .day(ts.getDay())
+                        .startTime(ts.getStartTime() != null ? ts.getStartTime().toString() : null)
+                        .endTime(ts.getEndTime() != null ? ts.getEndTime().toString() : null)
+                        .build())
+                    .collect(Collectors.toList())
+                : List.of();
+
+            schedule = ScheduleDTO.builder()
+                .startDate(occ.getStartDate() != null ? occ.getStartDate().toString() : null)
+                .endDate(occ.getEndDate() != null ? occ.getEndDate().toString() : null)
+                .frequency(occ.getFrequency())
+                .days(occ.getDays())
+                .timeSlots(timeSlots)
+                .build();
+        }
+
+        return RequirementDTO.builder()
+            .volunteersRequired(req.getVolunteersRequired())
+            .priority(req.getPriority())
+            .skillDetails(req.getSkillDetails())
+            .schedule(schedule)
+            .build();
     }
 }

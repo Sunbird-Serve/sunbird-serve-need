@@ -9,6 +9,7 @@ import com.sunbird.serve.need.models.Need.TimeSlot;
 import com.sunbird.serve.need.models.request.NeedRequirementRequest;
 import com.sunbird.serve.need.models.request.OccurrenceRequest;
 import com.sunbird.serve.need.models.request.TimeSlotRequest;
+import com.sunbird.serve.need.config.TenantContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class NeedTypeService {
         try {
             // Convert RaiseNeedRequest to Need entity
             NeedType needType = NeedMapper.mapToNeedType(createNeedTypeRequest.getNeedTypeRequest());
+            needType.setAgencyId(TenantContext.getAgencyId(headers));
 
             // Save the Need entity
             NeedType savedNeedType = needTypeRepository.save(needType);

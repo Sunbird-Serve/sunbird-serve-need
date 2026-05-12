@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.Need;
-import com.sunbird.serve.need.models.Need.Entity;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
@@ -31,11 +30,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
 import java.util.ArrayList;
+import java.util.Map;
+import com.sunbird.serve.need.config.TenantContext;
 
 
 import org.slf4j.Logger;
@@ -97,9 +99,11 @@ public class NeedDiscoveryController {
     public ResponseEntity<Page<NeedEntityAndRequirement>> getNeedsByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
-            @RequestParam NeedStatus status){
+            @RequestParam NeedStatus status,
+            @RequestHeader Map<String, String> headers){
         Pageable pageable = PageRequest.of(page, size);
-        Page<NeedEntityAndRequirement> needsByStatus = needDiscoveryService.getNeedsByStatus(status, pageable);
+        String agencyId = TenantContext.getAgencyId(headers);
+        Page<NeedEntityAndRequirement> needsByStatus = needDiscoveryService.getNeedsByStatus(status, agencyId, pageable);
         return ResponseEntity.ok(needsByStatus);
     }
 
@@ -201,7 +205,22 @@ public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
     return ResponseEntity.ok(needs);
 }
 
+    // New: Fetch all needs for a specific agency
+    @Operation(summary = "Fetch all Needs by Agency Id", description = "Fetch all Needs for a specific agency")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Fetched Needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @GetMapping("/need/agency/{agencyId}")
+    public ResponseEntity<Page<Need>> getAllNeedsByAgencyId(
+        @PathVariable(required = true) @Parameter(description = "Agency ID") String agencyId,
+        @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+        @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
 
-
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Need> needs = needDiscoveryService.getNeedsByAgencyId(agencyId, pageable);
+        return ResponseEntity.ok(needs);
+    }
 
 }

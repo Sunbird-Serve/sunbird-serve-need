@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Builder
 @Data
 @NoArgsConstructor
@@ -15,11 +14,12 @@ public class EntityRequest {
 
     private String website;
     private String name;
-    private Long mobile;
-    private String address_line1;
+    private String registrationId;
+    private String mobile;
+    private String addressLine1;
     private String district;
     private String state;
-    private Integer pincode;
+    private String pincode;
     private String category;
     private EntityStatus status;
 }

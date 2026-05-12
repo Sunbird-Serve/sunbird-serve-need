@@ -18,7 +18,7 @@ public class NeedEntityAndRequirement {
     private Optional<NeedRequirement> needRequirement;
     private Optional<Occurrence> occurrence;
     private List<TimeSlot> timeSlots;
-    private Optional<Entity> entity;
+    private Optional<NeedEntity> entity;
     private Optional<NeedType> needType;
 }
 
