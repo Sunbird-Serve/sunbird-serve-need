@@ -16,4 +16,7 @@ public class InputParametersDTO implements Serializable {
     private String inputUrl;
     private String softwarePlatform;
     private List<TimeSlotDTO> timeSlots;
+    // Legacy fields from backfilled data (old format had these at top level)
+    private String startTime;
+    private String endTime;
 }
