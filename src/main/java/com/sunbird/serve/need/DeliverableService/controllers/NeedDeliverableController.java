@@ -153,4 +153,19 @@ public class NeedDeliverableController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Reschedule deliverables for a need plan", description = "Pauses future planned deliverables on dropped days and creates new ones for added days")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Rescheduled Deliverables", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PutMapping("/need-plan/{needPlanId}/reschedule")
+    public ResponseEntity<Map<String, Object>> rescheduleDeliverables(
+            @PathVariable String needPlanId,
+            @RequestBody com.sunbird.serve.need.models.request.RescheduleRequest request,
+            @RequestHeader Map<String, String> headers) {
+        Map<String, Object> result = needDeliverableService.rescheduleDeliverables(needPlanId, request, headers);
+        return ResponseEntity.ok(result);
+    }
+
 }

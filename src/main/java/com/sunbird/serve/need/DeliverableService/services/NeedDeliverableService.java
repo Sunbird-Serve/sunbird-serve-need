@@ -6,6 +6,7 @@ import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.enums.SoftwarePlatform;
 import com.sunbird.serve.need.models.request.*;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
+import com.sunbird.serve.need.models.dto.TimeSlotDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,6 +19,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 @Service
 public class NeedDeliverableService {
@@ -217,6 +225,90 @@ public class NeedDeliverableService {
         } catch (Exception e) {
             logger.error("Error creating InputParameters with request: " + request, e);
             throw new RuntimeException("Error creating InputParameters", e);
+        }
+    }
+
+    /**
+     * Reschedule deliverables for a need plan.
+     * - Future "Planned" deliverables on dropped days → mark as PlannedPause
+     * - Create new deliverables for added days (for remaining dates in the plan's date range)
+     * - Deliverables on kept days remain unchanged
+     */
+    public Map<String, Object> rescheduleDeliverables(String needPlanId, RescheduleRequest request, Map<String, String> headers) {
+        try {
+            // Get all deliverables for this plan
+            List<NeedDeliverable> allDeliverables = needDeliverableRepository.findByNeedPlanId(needPlanId);
+
+            // Parse new days
+            Set<String> newDays = Arrays.stream(request.getDays().split(","))
+                .map(String::trim)
+                .collect(Collectors.toSet());
+
+            // Find future planned deliverables
+            LocalDate today = LocalDate.now();
+            List<NeedDeliverable> futurePlanned = needDeliverableRepository
+                .findByNeedPlanIdAndStatusAndDeliverableDateAfter(needPlanId, NeedDeliverableStatus.Planned, today);
+
+            // Mark deliverables on dropped days as PlannedPause
+            List<NeedDeliverable> paused = new ArrayList<>();
+            for (NeedDeliverable deliverable : futurePlanned) {
+                if (deliverable.getDeliverableDate() != null) {
+                    String dayOfWeek = deliverable.getDeliverableDate().getDayOfWeek()
+                        .getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                    if (!newDays.contains(dayOfWeek)) {
+                        deliverable.setStatus(NeedDeliverableStatus.PlannedPause);
+                        paused.add(deliverable);
+                    }
+                }
+            }
+            needDeliverableRepository.saveAll(paused);
+
+            // Determine date range for new deliverables
+            // Use the latest deliverable date as end date, or 3 months from now
+            LocalDate endDate = allDeliverables.stream()
+                .filter(d -> d.getDeliverableDate() != null)
+                .map(NeedDeliverable::getDeliverableDate)
+                .max(LocalDate::compareTo)
+                .orElse(today.plusMonths(3));
+
+            // Find which days are new (not in existing future deliverables)
+            Set<String> existingFutureDays = futurePlanned.stream()
+                .filter(d -> d.getDeliverableDate() != null && d.getStatus() != NeedDeliverableStatus.PlannedPause)
+                .map(d -> d.getDeliverableDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH))
+                .collect(Collectors.toSet());
+
+            Set<String> addedDays = newDays.stream()
+                .filter(day -> !existingFutureDays.contains(day))
+                .collect(Collectors.toSet());
+
+            // Create new deliverables for added days
+            List<NeedDeliverable> created = new ArrayList<>();
+            if (!addedDays.isEmpty()) {
+                LocalDate cursor = today.plusDays(1);
+                while (!cursor.isAfter(endDate)) {
+                    String cursorDay = cursor.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                    if (addedDays.contains(cursorDay)) {
+                        NeedDeliverable newDeliverable = NeedDeliverable.builder()
+                            .needPlanId(needPlanId)
+                            .status(NeedDeliverableStatus.Planned)
+                            .deliverableDate(cursor)
+                            .build();
+                        created.add(newDeliverable);
+                    }
+                    cursor = cursor.plusDays(1);
+                }
+                needDeliverableRepository.saveAll(created);
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("paused", paused.size());
+            result.put("created", created.size());
+            result.put("pausedDeliverables", paused);
+            result.put("createdDeliverables", created);
+            return result;
+        } catch (Exception e) {
+            logger.error("Error rescheduling deliverables for needPlanId: " + needPlanId, e);
+            throw new RuntimeException("Error rescheduling deliverables", e);
         }
     }
 }
