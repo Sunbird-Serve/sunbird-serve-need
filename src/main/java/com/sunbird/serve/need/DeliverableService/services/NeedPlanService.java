@@ -6,6 +6,7 @@ import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.Need.TimeSlot; // Ensure this is imported
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
+import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.SoftwarePlatform;
 import com.sunbird.serve.need.models.request.NeedPlanRequest;
 import com.sunbird.serve.need.models.response.NeedPlanResponse;
@@ -168,6 +169,21 @@ public class NeedPlanService {
         } catch (Exception e) {
             logger.error("Error creating deliverables and details for NeedPlan ID: " + needPlan.getId(), e);
             throw new RuntimeException("Error creating deliverables and details", e);
+        }
+    }
+
+    public NeedPlan updateNeedPlanStatus(UUID needPlanId, NeedStatus status, Map<String, String> headers) {
+        try {
+            NeedPlan existingPlan = needPlanRepository.findById(needPlanId)
+                .orElseThrow(() -> new NoSuchElementException("Need Plan not found with ID: " + needPlanId));
+            existingPlan.setStatus(status);
+            return needPlanRepository.save(existingPlan);
+        } catch (NoSuchElementException e) {
+            logger.error("Error updating NeedPlan status with ID: " + needPlanId + ". Not found.", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error updating NeedPlan status with ID: " + needPlanId, e);
+            throw new RuntimeException("Error updating NeedPlan status", e);
         }
     }
 }

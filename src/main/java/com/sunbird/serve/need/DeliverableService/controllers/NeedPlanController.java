@@ -93,4 +93,20 @@ public class NeedPlanController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Update Need Plan Status", description = "Update the status of a Need Plan")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully Updated Need Plan Status", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "Bad Input"),
+            @ApiResponse(responseCode = "404", description = "Need Plan Not Found"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PutMapping("/need-plan/status/{needPlanId}")
+    public ResponseEntity<NeedPlan> updateNeedPlanStatus(
+            @PathVariable UUID needPlanId,
+            @RequestParam(required = true) NeedStatus status,
+            @RequestHeader Map<String, String> headers) {
+        NeedPlan updatedPlan = needPlanService.updateNeedPlanStatus(needPlanId, status, headers);
+        return ResponseEntity.ok(updatedPlan);
+    }
+
 }
