@@ -44,4 +44,4 @@ out/
 *.log
 *.probe
 *.lock
-*.class
+*.class.gradle/
