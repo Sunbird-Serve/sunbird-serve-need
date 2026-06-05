@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -50,6 +51,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/needtype/{needTypeId}")
     public ResponseEntity<NeedType> getNeedTypeById(@PathVariable String needTypeId) {
         Optional<NeedType> needType = needTypeDiscoveryService.getNeedTypeById(UUID.fromString(needTypeId));
@@ -64,6 +66,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/needtype/")
     public ResponseEntity<Page<NeedType>> getNeedTypeByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
@@ -81,6 +84,7 @@ public class NeedTypeDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/needType/read")
 public ResponseEntity<Page<NeedType>> getAllNeedType(
         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,

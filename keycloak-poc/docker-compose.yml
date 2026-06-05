@@ -1,0 +1,25 @@
+version: "3.9"
+
+# Uses your existing local PostgreSQL instance (localhost:5432).
+# Pre-requisite: Create a 'keycloak' database in your local Postgres:
+#   psql -U postgres -c "CREATE DATABASE keycloak;"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres123
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: start-dev --import-realm

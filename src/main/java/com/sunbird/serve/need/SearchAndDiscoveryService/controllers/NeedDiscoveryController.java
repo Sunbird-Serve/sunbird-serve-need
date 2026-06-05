@@ -37,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
 import java.util.ArrayList;
 import java.util.Map;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.sunbird.serve.need.config.TenantContext;
 
 
@@ -65,6 +66,7 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/{needId}")
     public ResponseEntity<Need> getNeedById(@PathVariable String needId) {
         Optional<Need> need = needDiscoveryService.getNeedById(UUID.fromString(needId));
@@ -79,6 +81,7 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "404", description = "Need not found"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/{needId}/details")
     public ResponseEntity<NeedEntityAndRequirement> getNeedDetails(@PathVariable String needId) {
         return needDiscoveryService.getNeedDetailsById(UUID.fromString(needId))
@@ -95,14 +98,15 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/")
     public ResponseEntity<Page<NeedEntityAndRequirement>> getNeedsByStatus(
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
-            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
+            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size,
             @RequestParam NeedStatus status,
-            @RequestHeader Map<String, String> headers){
+            @RequestHeader Map<String, String> headers) {
         Pageable pageable = PageRequest.of(page, size);
-        String agencyId = TenantContext.getAgencyId(headers);
+        String agencyId = TenantContext.getAgencyId();  // from JWT via TenantContext
         Page<NeedEntityAndRequirement> needsByStatus = needDiscoveryService.getNeedsByStatus(status, agencyId, pageable);
         return ResponseEntity.ok(needsByStatus);
     }
@@ -114,6 +118,7 @@ public class NeedDiscoveryController {
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/need-type/{needTypeId}")
 public ResponseEntity<Page<Need>> getAllNeeds(
         @PathVariable(required = true) @Parameter(description = "Need Type ID") String needTypeId,
@@ -139,6 +144,7 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         @ApiResponse(responseCode = "400", description = "Bad Input"),
         @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/user/{userId}")
     public ResponseEntity<Page<Need>> getAllNeedsByUserId(
         @PathVariable(required = true) @Parameter(description = "User ID") String userId,
@@ -163,6 +169,7 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         @ApiResponse(responseCode = "400", description = "Bad Input"),
         @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/entity/{entityId}")
     public ResponseEntity<Page<Need>> getAllNeedsByEntityId(
         @PathVariable(required = true) @Parameter(description = "Entity ID") String entityId,
@@ -184,6 +191,7 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         @ApiResponse(responseCode = "200", description = "Successfully Fetched Needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
         @ApiResponse(responseCode = "400", description = "Bad Input"),
         @ApiResponse(responseCode = "500", description = "Server Error")})
+@PreAuthorize("isAuthenticated()")
 @PostMapping("/need/entities")
 public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
         @RequestBody EntityListRequest entityIdsRequest, // Using the new request class
@@ -212,6 +220,7 @@ public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/need/agency/{agencyId}")
     public ResponseEntity<Page<Need>> getAllNeedsByAgencyId(
         @PathVariable(required = true) @Parameter(description = "Agency ID") String agencyId,
