@@ -46,7 +46,7 @@ public class NeedTypeService {
         try {
             // Convert RaiseNeedRequest to Need entity
             NeedType needType = NeedMapper.mapToNeedType(createNeedTypeRequest.getNeedTypeRequest());
-            needType.setAgencyId(TenantContext.getAgencyId(headers));
+            needType.setAgencyId(TenantContext.getAgencyId());
 
             // Save the Need entity
             NeedType savedNeedType = needTypeRepository.save(needType);

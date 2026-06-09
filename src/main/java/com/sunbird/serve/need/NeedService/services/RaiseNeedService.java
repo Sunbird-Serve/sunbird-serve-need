@@ -99,7 +99,7 @@ public class RaiseNeedService {
                             .userId(request.getNeedRequest().getUserId())
                             .status(request.getNeedRequest().getStatus())
                             .name(request.getNeedRequest().getName())
-                            .agencyId(TenantContext.getAgencyId(headers))
+                            .agencyId(TenantContext.getAgencyId())
                             .requirement(buildRequirementDTO(request.getNeedRequirementRequest()))
                             .build()
             );

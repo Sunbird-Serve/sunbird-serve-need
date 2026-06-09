@@ -1,18 +1,14 @@
 package com.sunbird.serve.need.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,57 +17,60 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity   // enables @PreAuthorize on controller methods
 public class SecurityConfig {
 
-    @Value("${basic.auth.username:admin}")
-    private String username;
+    private final KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
+    private final JwtTenantFilter jwtTenantFilter;
+    private final SecurityErrorHandler securityErrorHandler;
 
-    @Value("${basic.auth.password:admin}")
-    private String password;
+    public SecurityConfig(KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter,
+                          JwtTenantFilter jwtTenantFilter,
+                          SecurityErrorHandler securityErrorHandler) {
+        this.keycloakJwtAuthenticationConverter = keycloakJwtAuthenticationConverter;
+        this.jwtTenantFilter = jwtTenantFilter;
+        this.securityErrorHandler = securityErrorHandler;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                // Swagger UI and API docs require authentication
+                // Public — no token required
                 .requestMatchers(
+                    "/actuator/health",
+                    "/actuator/info",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
                     "/swagger-resources/**",
                     "/webjars/**"
-                ).authenticated()
-
-                // Everything else is open (API endpoints, actuator, etc.)
-                .anyRequest().permitAll()
+                ).permitAll()
+                // Everything else requires a valid JWT
+                // Fine-grained role checks are on each controller method via @PreAuthorize
+                .anyRequest().authenticated()
             )
-            .httpBasic(basic -> {})
-            .formLogin(AbstractHttpConfigurer::disable);
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter))
+                .authenticationEntryPoint(securityErrorHandler)
+            )
+            .exceptionHandling(ex -> ex.accessDeniedHandler(securityErrorHandler))
+            // Run tenant filter after JWT is validated
+            .addFilterAfter(jwtTenantFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-            .username(username)
-            .password(passwordEncoder().encode(password))
-            .roles("ADMIN")
-            .build();
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:3000",
+            "http://localhost:5173"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
