@@ -69,7 +69,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:3000",
-            "http://localhost:5173"
+            "http://localhost:5173",
+            "https://serve-v1.evean.net",
+            "https://*.serve-v1.evean.net"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
