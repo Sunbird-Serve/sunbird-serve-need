@@ -69,7 +69,7 @@ public class NeedController {
             @ApiResponse(responseCode = "403", description = "Access Denied"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin', 'nCoordinator')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/need/status/{needId}")
     public ResponseEntity<Need> updateNeedStatus(
             @PathVariable UUID needId,
