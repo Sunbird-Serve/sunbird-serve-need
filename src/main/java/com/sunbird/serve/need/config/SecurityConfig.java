@@ -49,6 +49,8 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**"
                 ).permitAll()
+                // Public read access to approved needs (for volunteer browsing)
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/need/").permitAll()
                 // Everything else requires a valid JWT
                 // Fine-grained role checks are on each controller method via @PreAuthorize
                 .anyRequest().authenticated()
