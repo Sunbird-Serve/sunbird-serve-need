@@ -7,6 +7,7 @@ import com.sunbird.serve.need.models.enums.SoftwarePlatform;
 import com.sunbird.serve.need.models.request.*;
 import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import com.sunbird.serve.need.models.dto.TimeSlotDTO;
+import com.sunbird.serve.need.models.dto.InputParametersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -284,6 +285,16 @@ public class NeedDeliverableService {
             // Create new deliverables for added days
             List<NeedDeliverable> created = new ArrayList<>();
             if (!addedDays.isEmpty()) {
+                // Build inputParameters from the request's timeSlots
+                InputParametersDTO inputParams = null;
+                if (request.getTimeSlots() != null && !request.getTimeSlots().isEmpty()) {
+                    inputParams = InputParametersDTO.builder()
+                        .timeSlots(request.getTimeSlots())
+                        .startTime(request.getTimeSlots().get(0).getStartTime())
+                        .endTime(request.getTimeSlots().get(0).getEndTime())
+                        .build();
+                }
+
                 LocalDate cursor = today.plusDays(1);
                 while (!cursor.isAfter(endDate)) {
                     String cursorDay = cursor.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
@@ -292,12 +303,31 @@ public class NeedDeliverableService {
                             .needPlanId(needPlanId)
                             .status(NeedDeliverableStatus.Planned)
                             .deliverableDate(cursor)
+                            .inputParameters(inputParams)
                             .build();
                         created.add(newDeliverable);
                     }
                     cursor = cursor.plusDays(1);
                 }
                 needDeliverableRepository.saveAll(created);
+            }
+
+            // Also update inputParameters on existing future deliverables that are still Planned
+            if (request.getTimeSlots() != null && !request.getTimeSlots().isEmpty()) {
+                InputParametersDTO updatedParams = InputParametersDTO.builder()
+                    .timeSlots(request.getTimeSlots())
+                    .startTime(request.getTimeSlots().get(0).getStartTime())
+                    .endTime(request.getTimeSlots().get(0).getEndTime())
+                    .build();
+
+                List<NeedDeliverable> keptDeliverables = futurePlanned.stream()
+                    .filter(d -> d.getStatus() == NeedDeliverableStatus.Planned)
+                    .collect(Collectors.toList());
+
+                for (NeedDeliverable d : keptDeliverables) {
+                    d.setInputParameters(updatedParams);
+                }
+                needDeliverableRepository.saveAll(keptDeliverables);
             }
 
             Map<String, Object> result = new HashMap<>();
