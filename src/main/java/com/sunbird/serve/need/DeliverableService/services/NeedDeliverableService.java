@@ -101,6 +101,12 @@ public class NeedDeliverableService {
             existingNeedDeliverable.setComments(request.getComments());
             existingNeedDeliverable.setStatus(request.getStatus());
             existingNeedDeliverable.setDeliverableDate(request.getDeliverableDate());
+            if (request.getInputParameters() != null) {
+                existingNeedDeliverable.setInputParameters(request.getInputParameters());
+            }
+            if (request.getOutputParameters() != null) {
+                existingNeedDeliverable.setOutputParameters(request.getOutputParameters());
+            }
 
             // Email notification for cancelled sessions
             if (request.getStatus() == NeedDeliverableStatus.Cancelled) {
