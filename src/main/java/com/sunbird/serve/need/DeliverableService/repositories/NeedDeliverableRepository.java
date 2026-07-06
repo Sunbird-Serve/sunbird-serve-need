@@ -12,6 +12,6 @@ public interface NeedDeliverableRepository extends JpaRepository<NeedDeliverable
 
     List<NeedDeliverable> findByNeedPlanId(String needPlanId);
 
-    List<NeedDeliverable> findByNeedPlanIdAndStatusAndDeliverableDateAfter(
+    List<NeedDeliverable> findByNeedPlanIdAndStatusAndDeliverableDateGreaterThanEqual(
         String needPlanId, NeedDeliverableStatus status, LocalDate date);
 }

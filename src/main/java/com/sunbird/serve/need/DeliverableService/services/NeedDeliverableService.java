@@ -254,7 +254,7 @@ public class NeedDeliverableService {
             // Find future planned deliverables
             LocalDate today = LocalDate.now();
             List<NeedDeliverable> futurePlanned = needDeliverableRepository
-                .findByNeedPlanIdAndStatusAndDeliverableDateAfter(needPlanId, NeedDeliverableStatus.Planned, today);
+                .findByNeedPlanIdAndStatusAndDeliverableDateGreaterThanEqual(needPlanId, NeedDeliverableStatus.Planned, today);
 
             // Mark deliverables on dropped days as PlannedPause
             List<NeedDeliverable> paused = new ArrayList<>();
