@@ -73,7 +73,7 @@ public class NeedDeliverableController {
             @ApiResponse(responseCode = "403", description = "Access Denied"),
             @ApiResponse(responseCode = "500", description = "Server Error")}
     )
-    @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin', 'nCoordinator')")
+    @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin', 'nCoordinator', 'Volunteer')")
     @PutMapping("/need-deliverable/update/{needDeliverableId}")
     public ResponseEntity<NeedDeliverable> updateNeedDeliverable(
             @PathVariable UUID needDeliverableId,
