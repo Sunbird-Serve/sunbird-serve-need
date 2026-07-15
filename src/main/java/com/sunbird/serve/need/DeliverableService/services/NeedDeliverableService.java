@@ -278,9 +278,10 @@ public class NeedDeliverableService {
                 .max(LocalDate::compareTo)
                 .orElse(today.plusMonths(3));
 
-            // Find which days are new (not in existing future deliverables)
-            Set<String> existingFutureDays = futurePlanned.stream()
-                .filter(d -> d.getDeliverableDate() != null && d.getStatus() != NeedDeliverableStatus.PlannedPause)
+            // Find which days are new (not in existing future deliverables — including PlannedPause)
+            // We check ALL future deliverables regardless of status to avoid creating duplicates
+            Set<String> existingFutureDays = allDeliverables.stream()
+                .filter(d -> d.getDeliverableDate() != null && d.getDeliverableDate().compareTo(today) >= 0)
                 .map(d -> d.getDeliverableDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH))
                 .collect(Collectors.toSet());
 
@@ -319,19 +320,22 @@ public class NeedDeliverableService {
             }
 
             // Also update inputParameters on existing future deliverables that are still Planned
+            // MERGE: preserve existing inputUrl, only update time fields
             if (request.getTimeSlots() != null && !request.getTimeSlots().isEmpty()) {
-                InputParametersDTO updatedParams = InputParametersDTO.builder()
-                    .timeSlots(request.getTimeSlots())
-                    .startTime(request.getTimeSlots().get(0).getStartTime())
-                    .endTime(request.getTimeSlots().get(0).getEndTime())
-                    .build();
-
                 List<NeedDeliverable> keptDeliverables = futurePlanned.stream()
                     .filter(d -> d.getStatus() == NeedDeliverableStatus.Planned)
                     .collect(Collectors.toList());
 
                 for (NeedDeliverable d : keptDeliverables) {
-                    d.setInputParameters(updatedParams);
+                    InputParametersDTO existing = d.getInputParameters();
+                    if (existing == null) {
+                        existing = InputParametersDTO.builder().build();
+                    }
+                    // Preserve inputUrl and softwarePlatform, update time fields
+                    existing.setTimeSlots(request.getTimeSlots());
+                    existing.setStartTime(request.getTimeSlots().get(0).getStartTime());
+                    existing.setEndTime(request.getTimeSlots().get(0).getEndTime());
+                    d.setInputParameters(existing);
                 }
                 needDeliverableRepository.saveAll(keptDeliverables);
             }
