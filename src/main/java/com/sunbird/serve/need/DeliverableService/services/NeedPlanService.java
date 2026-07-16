@@ -136,14 +136,15 @@ public class NeedPlanService {
                         InputParametersDTO inputParamsDto = null;
                         if (!timeSlots.isEmpty()) {
                             TimeSlot timeSlot = timeSlots.get(0);
-                            LocalTime startTime = timeSlot.getStartTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
-                            LocalTime endTime = timeSlot.getEndTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
+                            // Time is already stored in IST - use UTC to avoid double conversion
+                            LocalTime startTime = timeSlot.getStartTime().atZone(ZoneId.of("UTC")).toLocalTime();
+                            LocalTime endTime = timeSlot.getEndTime().atZone(ZoneId.of("UTC")).toLocalTime();
 
                             List<TimeSlotDTO> timeSlotDtos = timeSlots.stream()
                                 .map(ts -> TimeSlotDTO.builder()
                                     .day(ts.getDay())
-                                    .startTime(ts.getStartTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime().toString())
-                                    .endTime(ts.getEndTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime().toString())
+                                    .startTime(ts.getStartTime().atZone(ZoneId.of("UTC")).toLocalTime().toString())
+                                    .endTime(ts.getEndTime().atZone(ZoneId.of("UTC")).toLocalTime().toString())
                                     .build())
                                 .collect(Collectors.toList());
 
