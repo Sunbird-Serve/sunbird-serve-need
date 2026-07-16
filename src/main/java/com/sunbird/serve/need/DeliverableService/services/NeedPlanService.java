@@ -5,6 +5,8 @@ import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
 import com.sunbird.serve.need.models.Need.InputParameters;
 import com.sunbird.serve.need.models.Need.TimeSlot; // Ensure this is imported
+import com.sunbird.serve.need.models.dto.InputParametersDTO;
+import com.sunbird.serve.need.models.dto.TimeSlotDTO;
 import com.sunbird.serve.need.models.enums.NeedDeliverableStatus;
 import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.SoftwarePlatform;
@@ -130,22 +132,43 @@ public class NeedPlanService {
 
                 for (LocalDate date : deliverableDates) {
                     try {
+                        // Build inputParameters JSONB from time slots
+                        InputParametersDTO inputParamsDto = null;
+                        if (!timeSlots.isEmpty()) {
+                            TimeSlot timeSlot = timeSlots.get(0);
+                            LocalTime startTime = timeSlot.getStartTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
+                            LocalTime endTime = timeSlot.getEndTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
+
+                            List<TimeSlotDTO> timeSlotDtos = timeSlots.stream()
+                                .map(ts -> TimeSlotDTO.builder()
+                                    .day(ts.getDay())
+                                    .startTime(ts.getStartTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime().toString())
+                                    .endTime(ts.getEndTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime().toString())
+                                    .build())
+                                .collect(Collectors.toList());
+
+                            inputParamsDto = InputParametersDTO.builder()
+                                .inputUrl("To be added soon")
+                                .softwarePlatform("GMEET")
+                                .startTime(startTime.toString())
+                                .endTime(endTime.toString())
+                                .timeSlots(timeSlotDtos)
+                                .build();
+                        }
+
                         NeedDeliverable needDeliverable = NeedDeliverable.builder()
                                 .needPlanId(needPlan.getId().toString())
                                 .deliverableDate(date)
                                 .status(NeedDeliverableStatus.Planned)
+                                .inputParameters(inputParamsDto)
                                 .build();
                         needDeliverable = needDeliverableRepository.save(needDeliverable);
 
+                        // Also write to old input_parameters table (dual-write for backward compat)
                         if (!timeSlots.isEmpty()) {
-                            // Use the first time slot as a representative
                             TimeSlot timeSlot = timeSlots.get(0);
-
-                            // Extract time component
                             LocalTime startTime = timeSlot.getStartTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
                             LocalTime endTime = timeSlot.getEndTime().atZone(ZoneId.of("Asia/Kolkata")).toLocalTime();
-
-                            // Combine with deliverableDate to create ZonedDateTime
                             ZonedDateTime startDateTime = ZonedDateTime.of(date, startTime, ZoneId.of("Asia/Kolkata"));
                             ZonedDateTime endDateTime = ZonedDateTime.of(date, endTime, ZoneId.of("Asia/Kolkata"));
 
