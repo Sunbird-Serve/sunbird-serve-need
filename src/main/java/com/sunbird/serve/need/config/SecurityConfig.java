@@ -1,5 +1,6 @@
 package com.sunbird.serve.need.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,6 +24,9 @@ public class SecurityConfig {
     private final KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
     private final JwtTenantFilter jwtTenantFilter;
     private final SecurityErrorHandler securityErrorHandler;
+
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private String allowedOrigins;
 
     public SecurityConfig(KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter,
                           JwtTenantFilter jwtTenantFilter,
@@ -49,6 +53,10 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**"
                 ).permitAll()
+                // Public onboarding endpoints (no auth required)
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/entity-onboard/request").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/entity-onboard/entities").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/entity-onboard/status").permitAll()
                 // Public read access to approved needs (for volunteer browsing)
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/need/").permitAll()
                 // Everything else requires a valid JWT
@@ -69,12 +77,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "https://serve-v1.evean.net",
-            "https://*.serve-v1.evean.net"
-        ));
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
