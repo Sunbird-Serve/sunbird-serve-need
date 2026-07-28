@@ -16,7 +16,7 @@ public class EntityRequest {
     private String name;
     private String registrationId;
     private String mobile;
-    private String addressLine1;
+    private String block;
     private String district;
     private String state;
     private String pincode;

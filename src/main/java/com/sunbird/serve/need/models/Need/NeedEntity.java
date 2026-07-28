@@ -29,8 +29,8 @@ public class NeedEntity {
     private String registrationId;
     private String website;
     private String mobile;
-    @Column(name = "address_line1")
-    private String addressLine1;
+    @Column(name = "block")
+    private String block;
     private String district;
     private String state;
     private String pincode;

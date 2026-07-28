@@ -90,7 +90,7 @@ public class EntityDiscoveryService {
             .name(request.getName())
             .registrationId(request.getRegistrationId())
             .website(request.getWebsite())
-            .addressLine1(request.getAddressLine1())
+            .block(request.getBlock())
             .mobile(request.getMobile())
             .district(request.getDistrict())
             .state(request.getState())
@@ -108,7 +108,7 @@ public class EntityDiscoveryService {
                 if (request.getName() != null) entity.setName(request.getName());
                 if (request.getRegistrationId() != null) entity.setRegistrationId(request.getRegistrationId());
                 if (request.getWebsite() != null) entity.setWebsite(request.getWebsite());
-                if (request.getAddressLine1() != null) entity.setAddressLine1(request.getAddressLine1());
+                if (request.getBlock() != null) entity.setBlock(request.getBlock());
                 if (request.getMobile() != null) entity.setMobile(request.getMobile());
                 if (request.getDistrict() != null) entity.setDistrict(request.getDistrict());
                 if (request.getState() != null) entity.setState(request.getState());
