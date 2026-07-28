@@ -35,13 +35,13 @@ public interface EntitySearchRepository extends JpaRepository<NeedEntity, UUID> 
            "(:district IS NULL OR e.district = :district) AND " +
            "(:block IS NULL OR e.block = :block) AND " +
            "(:state IS NULL OR e.state = :state) AND " +
-           "(:name IS NULL OR LOWER(e.name::text) LIKE LOWER(CONCAT('%', :name, '%')))",
+           "(:name IS NULL OR LOWER(CAST(e.name AS TEXT)) LIKE LOWER(CONCAT('%', :name, '%')))",
            countQuery = "SELECT COUNT(*) FROM entity e WHERE " +
            "(:agencyId IS NULL OR e.agency_id = :agencyId) AND " +
            "(:district IS NULL OR e.district = :district) AND " +
            "(:block IS NULL OR e.block = :block) AND " +
            "(:state IS NULL OR e.state = :state) AND " +
-           "(:name IS NULL OR LOWER(e.name::text) LIKE LOWER(CONCAT('%', :name, '%')))",
+           "(:name IS NULL OR LOWER(CAST(e.name AS TEXT)) LIKE LOWER(CONCAT('%', :name, '%')))",
            nativeQuery = true)
     Page<NeedEntity> findEntitiesForOnboarding(
             @Param("agencyId") String agencyId,
