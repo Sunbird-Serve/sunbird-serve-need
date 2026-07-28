@@ -29,13 +29,20 @@ public interface EntitySearchRepository extends JpaRepository<NeedEntity, UUID> 
     @Query("SELECT e FROM NeedEntity e WHERE e.agencyId = :agencyId AND e.id IN (SELECT um.orgId FROM UserMapping um WHERE um.userId = :userId)")
     Page<NeedEntity> findEntitiesByAgencyIdAndUserId(@Param("agencyId") String agencyId, @Param("userId") String userId, Pageable pageable);
 
-    // Filtering for onboarding entity browse
-    @Query("SELECT e FROM NeedEntity e WHERE " +
-           "(:agencyId IS NULL OR e.agencyId = :agencyId) AND " +
+    // Filtering for onboarding entity browse (native query to avoid type casting issues)
+    @Query(value = "SELECT * FROM entity e WHERE " +
+           "(:agencyId IS NULL OR e.agency_id = :agencyId) AND " +
            "(:district IS NULL OR e.district = :district) AND " +
            "(:block IS NULL OR e.block = :block) AND " +
            "(:state IS NULL OR e.state = :state) AND " +
-           "(:name IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%')))")
+           "(:name IS NULL OR LOWER(e.name::text) LIKE LOWER(CONCAT('%', :name, '%')))",
+           countQuery = "SELECT COUNT(*) FROM entity e WHERE " +
+           "(:agencyId IS NULL OR e.agency_id = :agencyId) AND " +
+           "(:district IS NULL OR e.district = :district) AND " +
+           "(:block IS NULL OR e.block = :block) AND " +
+           "(:state IS NULL OR e.state = :state) AND " +
+           "(:name IS NULL OR LOWER(e.name::text) LIKE LOWER(CONCAT('%', :name, '%')))",
+           nativeQuery = true)
     Page<NeedEntity> findEntitiesForOnboarding(
             @Param("agencyId") String agencyId,
             @Param("district") String district,
