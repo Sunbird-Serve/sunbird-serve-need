@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/onboard")
+@RequestMapping("/entity-onboard")
 public class OnboardController {
 
     private static final Logger logger = LoggerFactory.getLogger(OnboardController.class);
