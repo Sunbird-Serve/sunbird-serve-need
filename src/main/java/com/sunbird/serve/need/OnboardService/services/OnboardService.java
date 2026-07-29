@@ -93,6 +93,7 @@ public class OnboardService {
      * List onboarding requests for nAdmin review (agency-scoped).
      */
     public Page<EntityOnboard> getOnboardRequests(String agencyId, OnboardRequestStatus status, Pageable pageable) {
+        logger.info("getOnboardRequests called with agencyId='{}', status='{}'", agencyId, status);
         if (status != null) {
             return entityOnboardRepository.findAllByAgencyIdAndStatus(agencyId, status, pageable);
         }
