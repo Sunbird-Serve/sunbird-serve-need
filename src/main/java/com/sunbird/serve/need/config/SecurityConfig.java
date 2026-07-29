@@ -69,7 +69,7 @@ public class SecurityConfig {
             )
             .exceptionHandling(ex -> ex.accessDeniedHandler(securityErrorHandler))
             // Run tenant filter after JWT is validated
-            .addFilterAfter(jwtTenantFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterAfter(jwtTenantFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }
