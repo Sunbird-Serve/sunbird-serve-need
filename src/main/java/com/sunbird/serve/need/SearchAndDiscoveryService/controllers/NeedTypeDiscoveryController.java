@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sunbird.serve.need.models.Need.NeedType;
 import com.sunbird.serve.need.models.enums.NeedTypeStatus;
 import com.sunbird.serve.need.models.enums.TaskType;
+import com.sunbird.serve.need.config.TenantContext;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -73,7 +74,8 @@ public class NeedTypeDiscoveryController {
             @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size, 
             @RequestParam(required = true) NeedTypeStatus status){
         Pageable pageable = PageRequest.of(page, size);
-        Page<NeedType> needTypeByStatus = needTypeDiscoveryService.getNeedTypeByStatus(status, pageable);
+        String agencyId = TenantContext.getAgencyId();
+        Page<NeedType> needTypeByStatus = needTypeDiscoveryService.getNeedTypeByStatus(status, agencyId, pageable);
         return ResponseEntity.ok(needTypeByStatus);
     }
 
@@ -92,14 +94,15 @@ public ResponseEntity<Page<NeedType>> getAllNeedType(
         @RequestParam(required = false) @Parameter(description = "User ID") String userId) {
 
     Pageable pageable = PageRequest.of(page, size);
+    String agencyId = TenantContext.getAgencyId();
     Page<NeedType> needType;
 
     if (userId != null) {
         // Fetch needs based on userId
         needType = needTypeDiscoveryService.getNeedTypeByUserId(userId, pageable);
     } else {
-        // Fetch all needs if no specific parameters are provided
-        needType = needTypeDiscoveryService.getAllNeedType(pageable);
+        // Fetch all need types, scoped to agency
+        needType = needTypeDiscoveryService.getAllNeedType(agencyId, pageable);
     }
 
     return ResponseEntity.ok(needType);

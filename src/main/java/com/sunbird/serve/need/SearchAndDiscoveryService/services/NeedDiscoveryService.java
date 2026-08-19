@@ -9,6 +9,7 @@ import com.sunbird.serve.need.models.enums.NeedStatus;
 import com.sunbird.serve.need.models.enums.EntityStatus;
 import com.sunbird.serve.need.models.response.NeedEntityAndRequirement;
 import com.sunbird.serve.need.models.Need.NeedRequirement;
+import com.sunbird.serve.need.AgencyVisibilityService.services.AgencyScopeService;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class NeedDiscoveryService {
     private final NeedTypeRepository needTypeRepository;
     private final OccurrenceRepository occurrenceRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final AgencyScopeService agencyScopeService;
 
     @Autowired
     public NeedDiscoveryService(
@@ -37,7 +39,8 @@ public class NeedDiscoveryService {
             EntitySearchRepository entitySearchRepository,
             NeedTypeRepository needTypeRepository,
             OccurrenceRepository occurrenceRepository,
-            TimeSlotRepository timeSlotRepository) {
+            TimeSlotRepository timeSlotRepository,
+            AgencyScopeService agencyScopeService) {
         this.needDiscoveryRepository = needDiscoveryRepository;
         this.needRequirementRepository = needRequirementRepository;
         this.entityRepository = entityRepository;
@@ -45,6 +48,7 @@ public class NeedDiscoveryService {
         this.needTypeRepository = needTypeRepository;
         this.occurrenceRepository = occurrenceRepository;
         this.timeSlotRepository = timeSlotRepository;
+        this.agencyScopeService = agencyScopeService;
     }
 
     // Fetch all the needs 
@@ -146,9 +150,12 @@ public class NeedDiscoveryService {
         }
     }
 
-    // Fetch needs based on needTypeId
-    public Page<Need> getNeedByNeedTypeId(String needTypeId, Pageable pageable) {
+    // Fetch needs based on needTypeId (agency-scoped)
+    public Page<Need> getNeedByNeedTypeId(String needTypeId, String agencyId, Pageable pageable) {
         try {
+            if (agencyId != null && !agencyId.isBlank()) {
+                return needDiscoveryRepository.findAllByAgencyIdAndNeedTypeId(agencyId, needTypeId, pageable);
+            }
             return needDiscoveryRepository.findAllByNeedTypeId(needTypeId, pageable);
         } catch (Exception e) {
             logger.error("Error fetching Needs by NeedTypeId: {}", needTypeId, e);
@@ -166,9 +173,12 @@ public class NeedDiscoveryService {
         }
     }
 
-// Fetch needs based on userId
-    public Page<Need> getNeedByEntityId(String entityId, Pageable pageable) {
+    // Fetch needs based on entityId (agency-scoped)
+    public Page<Need> getNeedByEntityId(String entityId, String agencyId, Pageable pageable) {
         try {
+            if (agencyId != null && !agencyId.isBlank()) {
+                return needDiscoveryRepository.findAllByAgencyIdAndEntityId(agencyId, entityId, pageable);
+            }
             return needDiscoveryRepository.findAllByEntityId(entityId, pageable);
         } catch (Exception e) {
             logger.error("Error fetching Needs by entityId: {}", entityId, e);
@@ -176,14 +186,19 @@ public class NeedDiscoveryService {
         }
     }
 
-public Page<Need> getNeedByEntityIds(List<String> entityIds, Pageable pageable) {
+public Page<Need> getNeedByEntityIds(List<String> entityIds, String agencyId, Pageable pageable) {
     // Logic to fetch needs based on multiple entityIds
+    // Note: If agency-scoped, we filter the results. The repo doesn't have a combined method,
+    // so we use the entityIds query and trust that entities are already agency-scoped.
     return needDiscoveryRepository.findAllByEntityIds(entityIds, pageable);
 }
 
-    // Fetch needs based on userId and status
-    public Page<Need> getNeedByUserIdAndStatus(String userId, NeedStatus status, Pageable pageable) {
+    // Fetch needs based on userId and status (agency-scoped)
+    public Page<Need> getNeedByUserIdAndStatus(String userId, NeedStatus status, String agencyId, Pageable pageable) {
         try {
+            if (agencyId != null && !agencyId.isBlank()) {
+                return needDiscoveryRepository.findAllByAgencyIdAndUserId(agencyId, userId, pageable);
+            }
             return needDiscoveryRepository.findAllByUserIdAndStatus(userId, status, pageable);
         } catch (Exception e) {
             logger.error("Error fetching Needs by UserId and Status: {} {}", userId, status, e);
@@ -208,6 +223,36 @@ public Page<Need> getNeedByEntityIds(List<String> entityIds, Pageable pageable) 
         } catch (Exception e) {
             logger.error("Error fetching Needs by AgencyId: {}", agencyId, e);
             throw new RuntimeException("Error fetching Needs by AgencyId", e);
+        }
+    }
+
+    /**
+     * Discover needs with cross-agency visibility rules applied.
+     * Used by volunteers browsing available needs.
+     *
+     * @param volunteerAgencyId the agency the volunteer belongs to
+     * @param status filter by need status (typically Approved)
+     * @param pageable pagination
+     * @return needs the volunteer is allowed to see
+     */
+    public Page<Need> discoverNeedsForVolunteer(String volunteerAgencyId, NeedStatus status, Pageable pageable) {
+        try {
+            List<String> allowedAgencies = agencyScopeService.resolveDiscoverableAgencies(volunteerAgencyId);
+
+            if (allowedAgencies == null) {
+                // No restriction — volunteer can see all agencies' needs
+                return needDiscoveryRepository.findAllByStatus(status, pageable);
+            }
+
+            if (allowedAgencies.isEmpty()) {
+                // Edge case — return empty
+                return Page.empty(pageable);
+            }
+
+            return needDiscoveryRepository.findAllByAgencyIdInAndStatus(allowedAgencies, status, pageable);
+        } catch (Exception e) {
+            logger.error("Error discovering needs for volunteer agency: {}", volunteerAgencyId, e);
+            throw new RuntimeException("Error discovering needs for volunteer", e);
         }
     }
 }

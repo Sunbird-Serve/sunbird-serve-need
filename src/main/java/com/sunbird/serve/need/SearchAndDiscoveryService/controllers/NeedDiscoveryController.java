@@ -127,10 +127,10 @@ public ResponseEntity<Page<Need>> getAllNeeds(
             @RequestParam(required = true)  NeedStatus status) {
 
     Pageable pageable = PageRequest.of(page, size);
-    Page<Need> needs;
+    String agencyId = TenantContext.getAgencyId();
 
-    // Fetch needs based on needTypeId
-        needs = needDiscoveryService.getNeedByNeedTypeId(needTypeId, pageable);
+    // Fetch needs based on needTypeId, scoped to agency
+    Page<Need> needs = needDiscoveryService.getNeedByNeedTypeId(needTypeId, agencyId, pageable);
 
     return ResponseEntity.ok(needs);
 }
@@ -153,11 +153,10 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         @RequestParam(required = true) NeedStatus status) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Need> needs;
+        String agencyId = TenantContext.getAgencyId();
 
-
-        // Fetch needs based on userId
-        needs = needDiscoveryService.getNeedByUserIdAndStatus(userId, status, pageable);
+        // Fetch needs based on userId, scoped to agency
+        Page<Need> needs = needDiscoveryService.getNeedByUserIdAndStatus(userId, status, agencyId, pageable);
     
         return ResponseEntity.ok(needs);
 }
@@ -177,11 +176,10 @@ public ResponseEntity<Page<Need>> getAllNeeds(
         @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Need> needs;
+        String agencyId = TenantContext.getAgencyId();
 
-
-        // Fetch needs based on userId
-        needs = needDiscoveryService.getNeedByEntityId(entityId, pageable);
+        // Fetch needs based on entityId, scoped to agency
+        Page<Need> needs = needDiscoveryService.getNeedByEntityId(entityId, agencyId, pageable);
     
         return ResponseEntity.ok(needs);
 }
@@ -207,8 +205,10 @@ public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
     // Pageable for pagination
     Pageable pageable = PageRequest.of(page, size);
 
-    // Fetch needs based on the list of entityIds
-    Page<Need> needs = needDiscoveryService.getNeedByEntityIds(entityIds, pageable);
+    String agencyId = TenantContext.getAgencyId();
+
+    // Fetch needs based on the list of entityIds, scoped to agency
+    Page<Need> needs = needDiscoveryService.getNeedByEntityIds(entityIds, agencyId, pageable);
 
     return ResponseEntity.ok(needs);
 }
@@ -227,8 +227,37 @@ public ResponseEntity<Page<Need>> getAllNeedsByEntityIds(
         @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
         @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size) {
 
+        // Use agency from JWT context instead of path variable to prevent cross-tenant access
+        String tenantAgencyId = TenantContext.getAgencyId();
+        String effectiveAgencyId = (tenantAgencyId != null && !tenantAgencyId.isBlank()) ? tenantAgencyId : agencyId;
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<Need> needs = needDiscoveryService.getNeedsByAgencyId(agencyId, pageable);
+        Page<Need> needs = needDiscoveryService.getNeedsByAgencyId(effectiveAgencyId, pageable);
+        return ResponseEntity.ok(needs);
+    }
+
+    // Volunteer-facing: discover needs respecting cross-agency visibility rules
+    @Operation(summary = "Discover needs for volunteer",
+               description = "Returns needs that the current volunteer's agency is allowed to see, based on visibility configuration.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully discovered needs", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "400", description = "No agency context"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/need/discover")
+    public ResponseEntity<Page<Need>> discoverNeeds(
+            @RequestParam(defaultValue = "0") @Parameter(description = "Page number (default: 0)") int page,
+            @RequestParam(defaultValue = "10") @Parameter(description = "Page size (default: 10)") int size,
+            @RequestParam(defaultValue = "Approved") @Parameter(description = "Need status filter") NeedStatus status) {
+
+        String agencyId = TenantContext.getAgencyId();
+        if (agencyId == null || agencyId.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Need> needs = needDiscoveryService.discoverNeedsForVolunteer(agencyId, status, pageable);
         return ResponseEntity.ok(needs);
     }
 

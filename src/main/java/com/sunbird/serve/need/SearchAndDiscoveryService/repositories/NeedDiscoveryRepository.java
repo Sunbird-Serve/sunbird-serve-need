@@ -45,4 +45,11 @@ public interface NeedDiscoveryRepository extends JpaRepository<Need, UUID> {
     Page<Need> findAllByAgencyIdAndEntityId(String agencyId, String entityId, Pageable pageable);
     Page<Need> findAllByAgencyIdAndUserId(String agencyId, String userId, Pageable pageable);
     Page<Need> findAllByAgencyIdAndNeedTypeId(String agencyId, String needTypeId, Pageable pageable);
+
+    // Multi-agency visibility queries (for cross-agency discovery)
+    @Query("SELECT n FROM Need n WHERE n.agencyId IN :agencyIds AND n.status = :status")
+    Page<Need> findAllByAgencyIdInAndStatus(@Param("agencyIds") List<String> agencyIds, @Param("status") NeedStatus status, Pageable pageable);
+
+    @Query("SELECT n FROM Need n WHERE n.agencyId IN :agencyIds")
+    Page<Need> findAllByAgencyIdIn(@Param("agencyIds") List<String> agencyIds, Pageable pageable);
 }

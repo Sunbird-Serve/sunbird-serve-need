@@ -32,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.sunbird.serve.need.config.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -238,8 +239,12 @@ public ResponseEntity<Page<NeedEntity>> getAllEntityDetails(
             @PathVariable @Parameter(description = "Agency ID") String agencyId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        // Use agency from JWT context instead of path variable to prevent cross-tenant access
+        String tenantAgencyId = TenantContext.getAgencyId();
+        String effectiveAgencyId = (tenantAgencyId != null && !tenantAgencyId.isBlank()) ? tenantAgencyId : agencyId;
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<NeedEntity> entities = entityDiscoveryService.getEntitiesByAgencyId(agencyId, pageable);
+        Page<NeedEntity> entities = entityDiscoveryService.getEntitiesByAgencyId(effectiveAgencyId, pageable);
         return ResponseEntity.ok(entities);
     }
 

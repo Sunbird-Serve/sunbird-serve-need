@@ -24,9 +24,12 @@ public class NeedTypeDiscoveryService {
         this.needTypeDiscoveryRepository = needTypeDiscoveryRepository;
     }
 
-    // Fetch all the need types
-    public Page<NeedType> getAllNeedType(Pageable pageable) {
+    // Fetch all the need types (agency-scoped)
+    public Page<NeedType> getAllNeedType(String agencyId, Pageable pageable) {
         try {
+            if (agencyId != null && !agencyId.isBlank()) {
+                return needTypeDiscoveryRepository.findAllByAgencyId(agencyId, pageable);
+            }
             return needTypeDiscoveryRepository.findAll(pageable);
         } catch (Exception e) {
             logger.error("Error fetching all NeedTypes", e);
@@ -44,9 +47,12 @@ public class NeedTypeDiscoveryService {
         }
     }
 
-    // Fetch need types based on status
-    public Page<NeedType> getNeedTypeByStatus(NeedTypeStatus status, Pageable pageable) {
+    // Fetch need types based on status (agency-scoped)
+    public Page<NeedType> getNeedTypeByStatus(NeedTypeStatus status, String agencyId, Pageable pageable) {
         try {
+            if (agencyId != null && !agencyId.isBlank()) {
+                return needTypeDiscoveryRepository.findAllByAgencyIdAndStatus(agencyId, status, pageable);
+            }
             return needTypeDiscoveryRepository.findAllNeedTypeByStatus(status, pageable);
         } catch (Exception e) {
             logger.error("Error fetching NeedTypes by Status: {}", status, e);
