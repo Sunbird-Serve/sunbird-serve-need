@@ -63,7 +63,7 @@ public class AgencyScopeController {
             @ApiResponse(responseCode = "200", description = "Successfully saved scope config", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "400", description = "Bad Input"),
             @ApiResponse(responseCode = "500", description = "Server Error")})
-    @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin')")
+    @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin', 'vAdmin')")
     @PostMapping
     public ResponseEntity<AgencyScope> saveScopeConfig(@RequestBody AgencyScopeRequest request) {
         String agencyId = TenantContext.getAgencyId();
