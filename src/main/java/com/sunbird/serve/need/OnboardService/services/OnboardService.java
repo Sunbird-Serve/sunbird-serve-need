@@ -90,14 +90,26 @@ public class OnboardService {
     }
 
     /**
-     * List onboarding requests for nAdmin review (agency-scoped).
+     * List onboarding requests for review.
+     * sAdmin has no agencyId (platform-wide) → returns all requests, optionally filtered by status.
+     * nAdmin is agency-scoped → filters by their agencyId.
      */
     public Page<EntityOnboard> getOnboardRequests(String agencyId, OnboardRequestStatus status, Pageable pageable) {
         logger.info("getOnboardRequests called with agencyId='{}', status='{}'", agencyId, status);
-        if (status != null) {
-            return entityOnboardRepository.findAllByAgencyIdAndStatus(agencyId, status, pageable);
+
+        boolean isSAdmin = agencyId == null || agencyId.isBlank();
+
+        if (isSAdmin) {
+            // Platform-wide: return all requests (or filtered by status only)
+            return status != null
+                    ? entityOnboardRepository.findAllByStatus(status, pageable)
+                    : entityOnboardRepository.findAll(pageable);
         }
-        return entityOnboardRepository.findAllByAgencyId(agencyId, pageable);
+
+        // Agency-scoped (nAdmin)
+        return status != null
+                ? entityOnboardRepository.findAllByAgencyIdAndStatus(agencyId, status, pageable)
+                : entityOnboardRepository.findAllByAgencyId(agencyId, pageable);
     }
 
     /**

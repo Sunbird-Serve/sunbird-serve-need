@@ -18,6 +18,9 @@ public interface EntityOnboardRepository extends JpaRepository<EntityOnboard, UU
 
     Page<EntityOnboard> findAllByAgencyIdAndStatus(String agencyId, OnboardRequestStatus status, Pageable pageable);
 
+    // Used by sAdmin (no agency scope) — filter by status only
+    Page<EntityOnboard> findAllByStatus(OnboardRequestStatus status, Pageable pageable);
+
     Optional<EntityOnboard> findByMobileAndEntityIdAndStatusIn(String mobile, UUID entityId, List<OnboardRequestStatus> statuses);
 
     List<EntityOnboard> findAllByMobileOrderByCreatedAtDesc(String mobile);
