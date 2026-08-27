@@ -12,5 +12,8 @@ import lombok.NoArgsConstructor;
 public class OnboardReviewRequest {
     private String action; // Authorise, Clarification, Reject
     private String notes;
-    private String userId; // Required for Authorise — the serve osid from RC/volunteering service
+    // userId is no longer required for Authorise — the backend creates the Keycloak user
+    // and derives the userId automatically. Kept here for backward compatibility only.
+    @Deprecated
+    private String userId;
 }

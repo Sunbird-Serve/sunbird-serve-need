@@ -12,6 +12,7 @@ import com.sunbird.serve.need.models.request.OnboardReviewRequest;
 import com.sunbird.serve.need.models.response.OnboardStatusResponse;
 import com.sunbird.serve.need.EntitySearchRepository;
 import com.sunbird.serve.need.EntityMappingRepository;
+import com.sunbird.serve.need.config.KeycloakAdminClient;
 import com.sunbird.serve.need.config.TenantContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,15 +36,18 @@ public class OnboardService {
     private final EntityOnboardRepository entityOnboardRepository;
     private final EntitySearchRepository entitySearchRepository;
     private final EntityMappingRepository entityMappingRepository;
+    private final KeycloakAdminClient keycloakAdminClient;
 
     @Autowired
     public OnboardService(
             EntityOnboardRepository entityOnboardRepository,
             EntitySearchRepository entitySearchRepository,
-            EntityMappingRepository entityMappingRepository) {
+            EntityMappingRepository entityMappingRepository,
+            KeycloakAdminClient keycloakAdminClient) {
         this.entityOnboardRepository = entityOnboardRepository;
         this.entitySearchRepository = entitySearchRepository;
         this.entityMappingRepository = entityMappingRepository;
+        this.keycloakAdminClient = keycloakAdminClient;
     }
 
     /**
@@ -132,17 +136,14 @@ public class OnboardService {
 
         switch (action) {
             case "Authorise":
-                if (reviewRequest.getUserId() == null || reviewRequest.getUserId().isBlank()) {
-                    throw new IllegalArgumentException("userId is required for Authorise action.");
-                }
                 onboard.setStatus(OnboardRequestStatus.Authorised);
                 onboard.setReviewerNotes(reviewRequest.getNotes());
                 onboard.setReviewedBy(reviewerId);
                 onboard.setReviewedAt(Instant.now());
                 entityOnboardRepository.save(onboard);
 
-                // Provision coordinator with the serve userId passed from UI
-                provisionCoordinator(onboard, reviewRequest.getUserId());
+                // Provision coordinator: create Keycloak user + UserMapping
+                provisionCoordinator(onboard);
                 break;
 
             case "Clarification":
@@ -197,29 +198,37 @@ public class OnboardService {
     }
 
     /**
-     * Provision the coordinator on authorisation.
-     * This service only handles its own domain:
-     * 1. Create UserMapping (nCoordinator → entity) using the serve osid
-     * 2. Mark entity as Active
+     * Provision the coordinator after Authorise:
+     *  1. Create Keycloak user (username=mobile, temp password=mobile, nCoordinator role, agency group)
+     *  2. Create UserMapping (keycloak userId → entity)
+     *  3. Mark entity as Active
      *
-     * Keycloak user creation and serve-volunteering User/UserProfile creation
-     * are handled by the UI/orchestration layer before calling this endpoint.
+     * The Keycloak userId returned becomes the authoritative userId for this coordinator.
+     * No userId needs to be passed from the UI anymore.
      *
-     * @param onboard The authorised onboard request
-     * @param userId  The serve osid (from RC/volunteering), passed by the UI
+     * Temp password is set to the coordinator's mobile number with temporary=true,
+     * so Keycloak forces a password reset on first login.
      */
-    private void provisionCoordinator(EntityOnboard onboard, String userId) {
+    private void provisionCoordinator(EntityOnboard onboard) {
         try {
-            // Step 1: Create UserMapping
+            // Step 1: Create Keycloak user and get back the keycloak userId
+            String keycloakUserId = keycloakAdminClient.provisionCoordinator(
+                    onboard.getMobile(),
+                    onboard.getEmail(),
+                    onboard.getCoordinatorName(),
+                    onboard.getAgencyId()
+            );
+
+            // Step 2: Create UserMapping using the Keycloak userId
             UserMapping mapping = UserMapping.builder()
                     .agencyId(onboard.getAgencyId())
                     .orgId(onboard.getEntityId())
-                    .userId(userId)
+                    .userId(keycloakUserId)
                     .userRole(UserRole.nCoordinator)
                     .build();
             entityMappingRepository.save(mapping);
 
-            // Step 2: Mark entity as Active
+            // Step 3: Mark entity as Active
             entitySearchRepository.findById(onboard.getEntityId()).ifPresent(entity -> {
                 if (entity.getStatus() != EntityStatus.Active) {
                     entity.setStatus(EntityStatus.Active);
@@ -227,12 +236,12 @@ public class OnboardService {
                 }
             });
 
-            logger.info("Coordinator provisioned. onboardId={}, entityId={}, userId={}",
-                    onboard.getId(), onboard.getEntityId(), userId);
+            logger.info("Coordinator provisioned. onboardId={}, entityId={}, keycloakUserId={}",
+                    onboard.getId(), onboard.getEntityId(), keycloakUserId);
 
         } catch (Exception e) {
-            logger.error("Error provisioning coordinator for onboard request: " + onboard.getId(), e);
-            throw new RuntimeException("Error provisioning coordinator", e);
+            logger.error("Error provisioning coordinator for onboard request: {}", onboard.getId(), e);
+            throw new RuntimeException("Error provisioning coordinator: " + e.getMessage(), e);
         }
     }
 }
