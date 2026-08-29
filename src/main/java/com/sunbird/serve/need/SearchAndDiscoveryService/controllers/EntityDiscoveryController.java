@@ -189,8 +189,12 @@ public ResponseEntity<Page<NeedEntity>> getAllEntityDetails(
     @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin')")
     @PostMapping("/entity/assign")
     public ResponseEntity<UserMapping> assignEntity(@RequestBody EntityMappingRequest request, @RequestHeader Map<String, String> headers) {
-        UserMapping response = entityDiscoveryService.assignEntity(request, headers);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            UserMapping response = entityDiscoveryService.assignEntity(request, headers);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Operation(summary = "Edit an assigned Entity", description = "Modify an assigned Entity mapping")

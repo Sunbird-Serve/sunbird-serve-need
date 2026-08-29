@@ -136,12 +136,26 @@ public class EntityDiscoveryService {
     }
 
     public UserMapping assignEntity(EntityMappingRequest request, Map<String, String> headers) {
+        if (request.getUserId() == null || request.getUserId().isBlank()) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        if (request.getUserRole() == null || request.getUserRole().isBlank()) {
+            throw new IllegalArgumentException("userRole is required");
+        }
+
+        UserRole role;
+        try {
+            role = UserRole.valueOf(request.getUserRole());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid userRole: '" + request.getUserRole() + "'. Valid values: " + java.util.Arrays.toString(UserRole.values()));
+        }
+
         String agencyId = TenantContext.getAgencyId();
         UserMapping mapping = UserMapping.builder()
             .agencyId(request.getAgencyId() != null ? request.getAgencyId() : agencyId)
             .orgId(request.getEntityId())
             .userId(request.getUserId())
-            .userRole(UserRole.valueOf(request.getUserRole()))
+            .userRole(role)
             .build();
         return entityMappingRepository.save(mapping);
     }
