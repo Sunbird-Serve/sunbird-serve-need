@@ -9,6 +9,7 @@ import com.sunbird.serve.need.models.response.NeedDeliverableResponse;
 import com.sunbird.serve.need.models.dto.TimeSlotDTO;
 import com.sunbird.serve.need.models.dto.InputParametersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.slf4j.Logger;
@@ -39,6 +40,9 @@ public class NeedDeliverableService {
     
     @Autowired
     private WebClient.Builder webClientBuilder;
+
+    @Value("${serve.fulfill.base-url:http://serve-v1.evean.net}")
+    private String fulfillBaseUrl;
     
     private static final Logger logger = LoggerFactory.getLogger(NeedDeliverableService.class);
 
@@ -115,25 +119,26 @@ public class NeedDeliverableService {
                 Need need = needRepository.findById(UUID.fromString(needPlan.getNeedId()))
                     .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + needPlan.getNeedId()));
 
-                String apiUrl = "http://serve-v1.evean.net/api/v1/serve-fulfill/fulfillment/sendEmail";
+                String apiUrl = fulfillBaseUrl + "/api/v1/serve-fulfill/fulfillment/sendEmail";
 
                 Map<String, Object> apiRequestBody = new HashMap<>();
                 apiRequestBody.put("scenarioType", "CancelSession");
                 apiRequestBody.put("needId", need.getId());
                 apiRequestBody.put("deliverableDetails", existingNeedDeliverable);
 
-                webClientBuilder.build()
-                    .post()
-                    .uri(apiUrl)
-                    .bodyValue(apiRequestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .doOnSuccess(response -> logger.info("Email notification sent successfully."))
-                    .doOnError(e -> {
-                        logger.error("Error occurred while calling the fulfill microservice: " + e.getMessage(), e);
-                        throw new RuntimeException("Error occurred while calling the fulfill microservice", e);
-                    })
-                    .block();  // Block if you want to make this a synchronous call
+                // Best-effort notification: a failed email must NOT abort the deliverable update.
+                try {
+                    webClientBuilder.build()
+                        .post()
+                        .uri(apiUrl)
+                        .bodyValue(apiRequestBody)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .doOnSuccess(response -> logger.info("Email notification sent successfully."))
+                        .block();  // synchronous call
+                } catch (Exception e) {
+                    logger.error("Failed to send cancellation email notification to fulfill service (continuing anyway): {}", e.getMessage(), e);
+                }
             }
 
             // Save the updated need deliverable
