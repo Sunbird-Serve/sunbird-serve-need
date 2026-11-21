@@ -1,5 +1,6 @@
 package com.sunbird.serve.need;
 
+import com.sunbird.serve.need.models.Need.Need;
 import com.sunbird.serve.need.models.Need.NeedPlan;
 import com.sunbird.serve.need.models.Need.Occurrence;
 import com.sunbird.serve.need.models.Need.NeedDeliverable;
@@ -14,6 +15,7 @@ import com.sunbird.serve.need.models.request.NeedPlanRequest;
 import com.sunbird.serve.need.models.response.NeedPlanResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import java.util.Map;
 import java.util.List;
@@ -32,6 +34,7 @@ public class NeedPlanService {
     private final TimeSlotRepository timeSlotRepository;
     private final NeedDeliverableRepository needDeliverableRepository;
     private final InputParametersRepository inputParametersRepository;
+    private final NeedRepository needRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(NeedPlanService.class);
 
@@ -41,7 +44,9 @@ public class NeedPlanService {
             OccurrenceRepository occurrenceRepository,
             TimeSlotRepository timeSlotRepository,
             NeedDeliverableRepository needDeliverableRepository,
-            InputParametersRepository inputParametersRepository) {
+            InputParametersRepository inputParametersRepository,
+            NeedRepository needRepository) {
+        this.needRepository = needRepository;
         this.needPlanRepository = needPlanRepository;
         this.occurrenceRepository = occurrenceRepository;
         this.timeSlotRepository = timeSlotRepository;
@@ -209,5 +214,50 @@ public class NeedPlanService {
             logger.error("Error updating NeedPlan status with ID: " + needPlanId, e);
             throw new RuntimeException("Error updating NeedPlan status", e);
         }
+    }
+
+    /**
+     * Drop the volunteer assigned to a plan. Runs in one transaction:
+     * - future "Planned" deliverables of the plan -> PlannedPause
+     * - plan status -> Inactive
+     * - need status -> Approved, unless another non-Inactive plan exists for the same need
+     * Idempotent: an already Inactive plan returns 0 paused sessions.
+     */
+    @Transactional
+    public Map<String, Object> dropVolunteer(UUID needPlanId, String reason, Map<String, String> headers) {
+        NeedPlan plan = needPlanRepository.findById(needPlanId)
+            .orElseThrow(() -> new NoSuchElementException("Need Plan not found with ID: " + needPlanId));
+
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
+        List<NeedDeliverable> toPause = plan.getStatus() == NeedStatus.Inactive
+            ? Collections.emptyList()
+            : needDeliverableRepository.findByNeedPlanIdAndStatusAndDeliverableDateGreaterThanEqual(
+                needPlanId.toString(), NeedDeliverableStatus.Planned, today);
+        toPause.forEach(d -> d.setStatus(NeedDeliverableStatus.PlannedPause));
+        needDeliverableRepository.saveAll(toPause);
+
+        plan.setStatus(NeedStatus.Inactive);
+        needPlanRepository.save(plan);
+
+        boolean otherActivePlan = needPlanRepository.findByNeedId(plan.getNeedId()).stream()
+            .anyMatch(p -> !p.getId().equals(needPlanId) && p.getStatus() != NeedStatus.Inactive);
+
+        Need need = needRepository.findById(UUID.fromString(plan.getNeedId()))
+            .orElseThrow(() -> new NoSuchElementException("Need not found with ID: " + plan.getNeedId()));
+        if (!otherActivePlan) {
+            need.setStatus(NeedStatus.Approved);
+            needRepository.save(need);
+        }
+
+        logger.info("Dropped volunteer for plan {} (need {}), paused {} sessions, reason: {}",
+            needPlanId, plan.getNeedId(), toPause.size(), reason);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("needPlanId", needPlanId);
+        result.put("needId", plan.getNeedId());
+        result.put("pausedSessions", toPause.size());
+        result.put("planStatus", plan.getStatus());
+        result.put("needStatus", need.getStatus());
+        return result;
     }
 }

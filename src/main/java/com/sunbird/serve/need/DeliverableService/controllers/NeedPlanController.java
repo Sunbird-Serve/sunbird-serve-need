@@ -100,4 +100,22 @@ public class NeedPlanController {
         NeedPlan updatedPlan = needPlanService.updateNeedPlanStatus(needPlanId, status, headers);
         return ResponseEntity.ok(updatedPlan);
     }
+
+    @Operation(summary = "Drop volunteer from a Need Plan",
+            description = "Pauses future planned sessions, marks the plan Inactive and sets the Need back to Approved (unless another plan is still active). Idempotent.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Volunteer dropped", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "403", description = "Access Denied"),
+            @ApiResponse(responseCode = "404", description = "Need Plan or Need Not Found"),
+            @ApiResponse(responseCode = "500", description = "Server Error")}
+    )
+    @PreAuthorize("hasAnyRole('sAdmin', 'nAdmin', 'nCoordinator')")
+    @PutMapping("/need-plan/{needPlanId}/drop-volunteer")
+    public ResponseEntity<Map<String, Object>> dropVolunteer(
+            @PathVariable UUID needPlanId,
+            @RequestBody(required = false) Map<String, String> body,
+            @RequestHeader Map<String, String> headers) {
+        String reason = body != null ? body.get("reason") : null;
+        return ResponseEntity.ok(needPlanService.dropVolunteer(needPlanId, reason, headers));
+    }
 }
